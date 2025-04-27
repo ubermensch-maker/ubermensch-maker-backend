@@ -1,11 +1,25 @@
 -- users table
-create table users (
-    id              serial      primary key,
-    email           text        not null unique,
-    password        text        not null,
-    name            text        not null,
-    role            text        not null default 'USER',
-    timezone        text        not null default 'Asia/Seoul',
-    created_at      timestamptz not null default now(),
-    updated_at      timestamptz not null default now()
+create table users
+(
+    id         serial primary key,
+    email      text        not null unique,
+    password   text        not null,
+    name       text        not null,
+    role       text        not null default 'USER',
+    timezone   text        not null default 'Asia/Seoul',
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+
+-- goals table
+create table goals
+(
+    id          serial primary key,
+    user_id     int         not null references users (id),
+    title       text        not null,
+    description text,
+    start_at    timestamptz,
+    end_at      timestamptz,
+    created_at  timestamptz not null default now(),
+    updated_at  timestamptz not null default now()
 );
