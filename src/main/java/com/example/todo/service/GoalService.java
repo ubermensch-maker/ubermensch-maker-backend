@@ -41,8 +41,8 @@ public class GoalService {
         return GoalResponse.from(goal);
     }
 
-    public List<GoalResponse> list() {
-        List<Goal> goals = goalRepository.findAll();
+    public List<GoalResponse> list(Long userId) {
+        List<Goal> goals = goalRepository.findAllByUserId(userId);
         return goals.stream().map(GoalResponse::from).toList();
     }
 

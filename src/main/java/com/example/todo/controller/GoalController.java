@@ -25,8 +25,8 @@ public class GoalController {
     }
 
     @GetMapping("/goals")
-    public List<GoalResponse> list() {
-        return goalService.list();
+    public List<GoalResponse> list(@RequestParam Long userId) {
+        return goalService.list(userId);
     }
 
     @PutMapping("/goals/{goalId}")
