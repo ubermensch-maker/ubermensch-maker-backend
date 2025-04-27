@@ -9,7 +9,7 @@ import lombok.ToString;
 import java.time.Instant;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

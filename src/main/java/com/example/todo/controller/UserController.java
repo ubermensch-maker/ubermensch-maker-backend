@@ -20,13 +20,13 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
-    public UserResponse findOne(@PathVariable Long userId) {
-        return userService.findOne(userId);
+    public UserResponse read(@PathVariable Long userId) {
+        return userService.read(userId);
     }
 
     @GetMapping("/users")
-    public List<UserResponse> findAll() {
-        return userService.findAll();
+    public List<UserResponse> list() {
+        return userService.list();
     }
 
     @PutMapping("/users/{userId}")

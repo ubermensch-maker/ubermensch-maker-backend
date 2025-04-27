@@ -1,0 +1,90 @@
+package com.example.todo.api;
+
+import com.example.todo.dto.response.UserResponse;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.client.RestClient;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class UserApiTest {
+    RestClient restClient = RestClient.create("http://localhost:8080");
+
+    static final long TEST_USER_ID = 1L;
+
+    @Test
+    void createTest() {
+        UserResponse response = create(new UserCreateRequest(
+                "test@gmail.com", "password", "name", "Asia/Seoul"
+        ));
+        System.out.println("response = " + response);
+    }
+
+    UserResponse create(UserCreateRequest request) {
+        return restClient.post()
+                .uri("/users")
+                .body(request)
+                .retrieve()
+                .body(UserResponse.class);
+    }
+
+    @Test
+    void readTest() {
+        UserResponse response = read(TEST_USER_ID);
+        System.out.println("response = " + response);
+    }
+
+    UserResponse read(Long userId) {
+        return restClient.get()
+                .uri("/users/{userId}", userId)
+                .retrieve()
+                .body(UserResponse.class);
+    }
+
+    @Test
+    void updateTest() {
+        update(TEST_USER_ID, new UserUpdateRequest(null, "updated password", "new name", null));
+        UserResponse response = read(TEST_USER_ID);
+        System.out.println("response = " + response);
+    }
+
+    void update(Long userId, UserUpdateRequest request) {
+        restClient.put()
+                .uri("/users/{userId}", userId)
+                .body(request)
+                .retrieve()
+                .body(UserResponse.class);
+    }
+
+    @Test
+    void deleteTest() {
+        delete(TEST_USER_ID);
+        assertThrows(Exception.class, () -> read(TEST_USER_ID));
+    }
+
+    void delete(Long userId) {
+        restClient.delete()
+                .uri("/users/{userId}", userId)
+                .retrieve()
+                .body(Void.class);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    static class UserCreateRequest {
+        private String email;
+        private String password;
+        private String name;
+        private String timezone;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    static class UserUpdateRequest {
+        private String email;
+        private String password;
+        private String name;
+        private String timezone;
+    }
+}

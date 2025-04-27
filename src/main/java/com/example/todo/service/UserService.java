@@ -28,12 +28,12 @@ public class UserService {
         return UserResponse.from(user);
     }
 
-    public UserResponse findOne(Long userId) {
+    public UserResponse read(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         return UserResponse.from(user);
     }
 
-    public List<UserResponse> findAll() {
+    public List<UserResponse> list() {
         List<User> users = userRepository.findAll();
         return users.stream().map(UserResponse::from).toList();
     }
