@@ -1,7 +1,6 @@
 package com.example.todo.controller;
 
 import com.example.todo.dto.request.GoalCreateRequest;
-import com.example.todo.dto.request.GoalDeleteRequest;
 import com.example.todo.dto.request.GoalUpdateRequest;
 import com.example.todo.dto.response.GoalResponse;
 import com.example.todo.service.GoalService;
@@ -36,7 +35,7 @@ public class GoalController {
     }
 
     @DeleteMapping("/goals/{goalId}")
-    public void delete(@PathVariable Long goalId, @RequestBody GoalDeleteRequest request) {
-        goalService.delete(goalId, request);
+    public void delete(@PathVariable Long goalId, @RequestParam Long userId) {
+        goalService.delete(goalId, userId);
     }
 }

@@ -1,7 +1,6 @@
 package com.example.todo.service;
 
 import com.example.todo.dto.request.GoalCreateRequest;
-import com.example.todo.dto.request.GoalDeleteRequest;
 import com.example.todo.dto.request.GoalUpdateRequest;
 import com.example.todo.dto.response.GoalResponse;
 import com.example.todo.entity.Goal;
@@ -71,9 +70,9 @@ public class GoalService {
     }
 
     @Transactional
-    public void delete(Long goalId, GoalDeleteRequest request) {
+    public void delete(Long goalId, Long userId) {
         // TODO(jiyoung): replace with login user
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Goal goal = goalRepository.findById(goalId)
