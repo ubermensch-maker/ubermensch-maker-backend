@@ -8,7 +8,6 @@ import java.time.Instant;
 @Getter
 public class KpiUpdateDto {
     private Long userId;
-    private Long goalId;
     private String title;
     private String description;
     private KpiStatus status;
