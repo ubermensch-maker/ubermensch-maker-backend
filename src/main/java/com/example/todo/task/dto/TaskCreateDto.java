@@ -8,6 +8,7 @@ import java.time.Instant;
 public class TaskCreateDto {
     private Long userId;
     private Long goalId;
+    private Long kpiId;
     private String title;
     private String description;
     private Instant startAt;

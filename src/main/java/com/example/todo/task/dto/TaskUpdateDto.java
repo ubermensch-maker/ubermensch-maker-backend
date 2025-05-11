@@ -8,6 +8,8 @@ import java.time.Instant;
 @Getter
 public class TaskUpdateDto {
     private Long userId;
+    private Long goalId;
+    private Long kpiId;
     private String title;
     private String description;
     private TaskStatus status;

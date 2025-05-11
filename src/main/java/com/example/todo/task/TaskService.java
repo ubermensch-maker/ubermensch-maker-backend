@@ -2,6 +2,8 @@ package com.example.todo.task;
 
 import com.example.todo.goal.Goal;
 import com.example.todo.goal.GoalRepository;
+import com.example.todo.kpi.Kpi;
+import com.example.todo.kpi.KpiRepository;
 import com.example.todo.task.dto.TaskCreateDto;
 import com.example.todo.task.dto.TaskDto;
 import com.example.todo.task.dto.TaskUpdateDto;
@@ -19,6 +21,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
+    private final KpiRepository kpiRepository;
 
     @Transactional
     public TaskDto create(TaskCreateDto request) {
@@ -31,9 +34,16 @@ public class TaskService {
                     .orElseThrow(() -> new RuntimeException("Goal not found"));
         }
 
+        Kpi kpi = null;
+        if (request.getKpiId() != null) {
+            kpi = kpiRepository.findById(request.getKpiId())
+                    .orElseThrow(() -> new RuntimeException("Kpi not found"));
+        }
+
         Task task = Task.create(
                 user,
                 goal,
+                kpi,
                 request.getTitle(),
                 request.getDescription(),
                 request.getStartAt(),
@@ -49,8 +59,17 @@ public class TaskService {
         return TaskDto.from(task);
     }
 
-    public List<TaskDto> list(Long userId) {
-        List<Task> tasks = taskRepository.findAllByUserId(userId);
+    public List<TaskDto> list(Long userId, Long goalId, Long kpiId) {
+        List<Task> tasks;
+
+        if (kpiId != null) {
+            tasks = taskRepository.findAllByUserIdAndKpiId(userId, kpiId);
+        } else if (goalId != null) {
+            tasks = taskRepository.findAllByUserIdAndGoalId(userId, goalId);
+        } else {
+            tasks = taskRepository.findAllByUserId(userId);
+        }
+
         return tasks.stream().map(TaskDto::from).toList();
     }
 

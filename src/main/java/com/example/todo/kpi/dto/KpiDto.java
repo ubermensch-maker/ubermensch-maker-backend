@@ -11,6 +11,8 @@ import java.time.Instant;
 @ToString
 public class KpiDto {
     private Long id;
+    private Long userId;
+    private Long goalId;
     private String title;
     private String description;
     private KpiStatus status;
@@ -22,6 +24,8 @@ public class KpiDto {
     public static KpiDto from(Kpi kpi) {
         KpiDto response = new KpiDto();
         response.id = kpi.getId();
+        response.userId = kpi.getUser().getId();
+        response.goalId = kpi.getGoal().getId();
         response.title = kpi.getTitle();
         response.description = kpi.getDescription();
         response.status = kpi.getStatus();

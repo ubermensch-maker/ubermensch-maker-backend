@@ -1,6 +1,7 @@
 package com.example.todo.task;
 
 import com.example.todo.goal.Goal;
+import com.example.todo.kpi.Kpi;
 import com.example.todo.task.enums.TaskStatus;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
@@ -29,6 +30,10 @@ public class Task {
     @JoinColumn(name = "goal_id")
     private Goal goal;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kpi_id")
+    private Kpi kpi;
+
     @Column(nullable = false)
     private String title;
 
@@ -50,10 +55,11 @@ public class Task {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public static Task create(User user, Goal goal, String title, String description, Instant startAt, Instant endAt) {
+    public static Task create(User user, Goal goal, Kpi kpi, String title, String description, Instant startAt, Instant endAt) {
         Task task = new Task();
         task.user = user;
         task.goal = goal;
+        task.kpi = kpi;
         task.title = title;
         task.description = description;
         task.status = TaskStatus.PENDING;
