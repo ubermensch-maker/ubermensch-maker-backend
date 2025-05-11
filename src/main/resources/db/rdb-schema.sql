@@ -1,4 +1,4 @@
--- users table
+-- user table
 create table users
 (
     id         serial primary key,
@@ -11,7 +11,7 @@ create table users
     updated_at timestamptz not null default now()
 );
 
--- goals table
+-- goal table
 create table goals
 (
     id          serial primary key,
@@ -24,12 +24,28 @@ create table goals
     updated_at  timestamptz not null default now()
 );
 
--- tasks table
+-- kpi table
+create table kpis
+(
+    id          serial primary key,
+    user_id     int         not null references users (id),
+    goal_id     int         not null references goals (id),
+    title       text        not null,
+    description text,
+    status      text        not null default 'PENDING',
+    start_at    timestamptz,
+    end_at      timestamptz,
+    created_at  timestamptz not null default now(),
+    updated_at  timestamptz not null default now()
+);
+
+-- task table
 create table tasks
 (
     id          serial primary key,
     user_id     int         not null references users (id),
     goal_id     int references goals (id),
+    kpi_id      int references kpis (id),
     title       text        not null,
     description text,
     status      text        not null default 'PENDING',
