@@ -1,6 +1,6 @@
 package com.example.todo.api;
 
-import com.example.todo.dto.response.UserResponse;
+import com.example.todo.user.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.junit.jupiter.api.Test;
@@ -15,37 +15,37 @@ public class UserApiTest {
 
     @Test
     void createTest() {
-        UserResponse response = create(new UserCreateRequest(
+        UserDto response = create(new UserCreateRequest(
                 "test@gmail.com", "password", "name", "Asia/Seoul"
         ));
         System.out.println("response = " + response);
     }
 
-    UserResponse create(UserCreateRequest request) {
+    UserDto create(UserCreateRequest request) {
         return restClient.post()
                 .uri("/users")
                 .body(request)
                 .retrieve()
-                .body(UserResponse.class);
+                .body(UserDto.class);
     }
 
     @Test
     void readTest() {
-        UserResponse response = read(TEST_USER_ID);
+        UserDto response = read(TEST_USER_ID);
         System.out.println("response = " + response);
     }
 
-    UserResponse read(Long userId) {
+    UserDto read(Long userId) {
         return restClient.get()
                 .uri("/users/{userId}", userId)
                 .retrieve()
-                .body(UserResponse.class);
+                .body(UserDto.class);
     }
 
     @Test
     void updateTest() {
         update(TEST_USER_ID, new UserUpdateRequest(null, "updated password", "new name", null));
-        UserResponse response = read(TEST_USER_ID);
+        UserDto response = read(TEST_USER_ID);
         System.out.println("response = " + response);
     }
 
@@ -54,7 +54,7 @@ public class UserApiTest {
                 .uri("/users/{userId}", userId)
                 .body(request)
                 .retrieve()
-                .body(UserResponse.class);
+                .body(UserDto.class);
     }
 
     @Test
