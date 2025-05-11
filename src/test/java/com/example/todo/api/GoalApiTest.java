@@ -1,6 +1,6 @@
 package com.example.todo.api;
 
-import com.example.todo.dto.response.GoalResponse;
+import com.example.todo.goal.dto.GoalDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ public class GoalApiTest {
 
     @Test
     void createTest() {
-        GoalResponse response = create(new GoalCreateRequest(
+        GoalDto response = create(new GoalCreateRequest(
                 1L,
                 "title",
                 "description",
@@ -28,31 +28,31 @@ public class GoalApiTest {
         System.out.println("response = " + response);
     }
 
-    GoalResponse create(GoalCreateRequest request) {
+    GoalDto create(GoalCreateRequest request) {
         return restClient.post()
                 .uri("/goals")
                 .body(request)
                 .retrieve()
-                .body(GoalResponse.class);
+                .body(GoalDto.class);
     }
 
     @Test
     void readTest() {
-        GoalResponse response = read(TEST_GOAL_ID);
+        GoalDto response = read(TEST_GOAL_ID);
         System.out.println("response = " + response);
     }
 
-    GoalResponse read(Long goalId) {
+    GoalDto read(Long goalId) {
         return restClient.get()
                 .uri("/goals/{goalId}", goalId)
                 .retrieve()
-                .body(GoalResponse.class);
+                .body(GoalDto.class);
     }
 
     @Test
     void updateTest() {
         update(TEST_GOAL_ID, new GoalUpdateRequest(TEST_USER_ID, "new title", null, null, null));
-        GoalResponse response = read(TEST_USER_ID);
+        GoalDto response = read(TEST_USER_ID);
         System.out.println("response = " + response);
     }
 
@@ -61,7 +61,7 @@ public class GoalApiTest {
                 .uri("/goals/{goalId}", goalId)
                 .body(request)
                 .retrieve()
-                .body(GoalResponse.class);
+                .body(GoalDto.class);
     }
 
     @Test
