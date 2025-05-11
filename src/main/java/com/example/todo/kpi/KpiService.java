@@ -66,7 +66,7 @@ public class KpiService {
         Kpi kpi = kpiRepository.findById(kpiId)
                 .orElseThrow(() -> new RuntimeException("Kpi not found"));
 
-        if (user.getId().equals(kpi.getUser().getId())) {
+        if (!user.getId().equals(kpi.getUser().getId())) {
             throw new RuntimeException("Unauthorized update");
         }
 
