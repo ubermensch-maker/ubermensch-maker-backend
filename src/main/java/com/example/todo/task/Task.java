@@ -14,7 +14,7 @@ import java.time.Instant;
 @Entity
 @Table(name = "tasks")
 @Getter
-@ToString()
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Task {
     @Id

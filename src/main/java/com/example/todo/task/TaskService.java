@@ -1,11 +1,11 @@
 package com.example.todo.task;
 
-import com.example.todo.task.dto.TaskCreateDto;
-import com.example.todo.task.dto.TaskUpdateDto;
-import com.example.todo.task.dto.TaskDto;
 import com.example.todo.goal.Goal;
-import com.example.todo.user.User;
 import com.example.todo.goal.GoalRepository;
+import com.example.todo.task.dto.TaskCreateDto;
+import com.example.todo.task.dto.TaskDto;
+import com.example.todo.task.dto.TaskUpdateDto;
+import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,6 @@ public class TaskService {
 
     @Transactional
     public TaskDto create(TaskCreateDto request) {
-        // TODO(jiyoung): replace with login user
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -57,7 +56,6 @@ public class TaskService {
 
     @Transactional
     public TaskDto update(Long taskId, TaskUpdateDto request) {
-        // TODO(jiyoung): replace with login user
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -65,7 +63,7 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
         if (!user.getId().equals(task.getUser().getId())) {
-            throw new RuntimeException("Unauthorized: not the task owner");
+            throw new RuntimeException("Unauthorized update");
         }
 
         task.update(
@@ -81,7 +79,6 @@ public class TaskService {
 
     @Transactional
     public void delete(Long taskId, Long userId) {
-        // TODO(jiyoung): replace with login user
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -89,7 +86,7 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
         if (!user.getId().equals(task.getUser().getId())) {
-            throw new RuntimeException("Unauthorized: not the task owner");
+            throw new RuntimeException("Unauthorized delete");
         }
 
         taskRepository.delete(task);
