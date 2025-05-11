@@ -15,13 +15,13 @@ public class UserApiTest {
 
     @Test
     void createTest() {
-        UserDto response = create(new UserCreateRequest(
+        UserDto response = create(new UserCreateDto(
                 "test@gmail.com", "password", "name", "Asia/Seoul"
         ));
         System.out.println("response = " + response);
     }
 
-    UserDto create(UserCreateRequest request) {
+    UserDto create(UserCreateDto request) {
         return restClient.post()
                 .uri("/users")
                 .body(request)
@@ -44,12 +44,12 @@ public class UserApiTest {
 
     @Test
     void updateTest() {
-        update(TEST_USER_ID, new UserUpdateRequest(null, "updated password", "new name", null));
+        update(TEST_USER_ID, new UserUpdateDto(null, "updated password", "new name", null));
         UserDto response = read(TEST_USER_ID);
         System.out.println("response = " + response);
     }
 
-    void update(Long userId, UserUpdateRequest request) {
+    void update(Long userId, UserUpdateDto request) {
         restClient.put()
                 .uri("/users/{userId}", userId)
                 .body(request)
@@ -72,7 +72,7 @@ public class UserApiTest {
 
     @Getter
     @AllArgsConstructor
-    static class UserCreateRequest {
+    static class UserCreateDto {
         private String email;
         private String password;
         private String name;
@@ -81,7 +81,7 @@ public class UserApiTest {
 
     @Getter
     @AllArgsConstructor
-    static class UserUpdateRequest {
+    static class UserUpdateDto {
         private String email;
         private String password;
         private String name;
