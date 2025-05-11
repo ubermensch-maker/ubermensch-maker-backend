@@ -23,3 +23,18 @@ create table goals
     created_at  timestamptz not null default now(),
     updated_at  timestamptz not null default now()
 );
+
+-- tasks table
+create table tasks
+(
+    id          serial primary key,
+    user_id     int         not null references users (id),
+    goal_id     int references goals (id),
+    title       text        not null,
+    description text,
+    status      text        not null default 'PENDING',
+    start_at    timestamptz,
+    end_at      timestamptz,
+    created_at  timestamptz not null default now(),
+    updated_at  timestamptz not null default now()
+);
