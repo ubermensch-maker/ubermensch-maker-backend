@@ -1,8 +1,8 @@
 package com.example.todo.task;
 
 import com.example.todo.task.dto.TaskCreateDto;
-import com.example.todo.task.dto.TaskUpdateDto;
 import com.example.todo.task.dto.TaskDto;
+import com.example.todo.task.dto.TaskUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +24,8 @@ public class TaskController {
     }
 
     @GetMapping("/tasks")
-    public List<TaskDto> list(@RequestParam Long userId) {
-        return taskService.list(userId);
+    public List<TaskDto> list(@RequestParam Long userId, @RequestParam(required = false) Long goalId, @RequestParam(required = false) Long kpiId) {
+        return taskService.list(userId, goalId, kpiId);
     }
 
     @PutMapping("/tasks/{taskId}")

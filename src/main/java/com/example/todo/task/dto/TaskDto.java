@@ -11,6 +11,9 @@ import java.time.Instant;
 @ToString
 public class TaskDto {
     private Long id;
+    private Long userId;
+    private Long goalId;
+    private Long kpiId;
     private String title;
     private String description;
     private TaskStatus status;
@@ -22,6 +25,9 @@ public class TaskDto {
     public static TaskDto from(Task task) {
         TaskDto response = new TaskDto();
         response.id = task.getId();
+        response.userId = task.getUser().getId();
+        response.goalId = task.getGoal().getId();
+        response.kpiId = task.getKpi().getId();
         response.title = task.getTitle();
         response.description = task.getDescription();
         response.status = task.getStatus();

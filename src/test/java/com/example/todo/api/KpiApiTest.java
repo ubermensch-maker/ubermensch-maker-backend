@@ -1,6 +1,7 @@
 package com.example.todo.api;
 
-import com.example.todo.goal.dto.GoalDto;
+import com.example.todo.kpi.dto.KpiDto;
+import com.example.todo.kpi.enums.KpiStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.junit.jupiter.api.Test;
@@ -10,16 +11,18 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class GoalApiTest {
+public class KpiApiTest {
     RestClient restClient = RestClient.create("http://localhost:8080");
 
     static final long TEST_USER_ID = 1L;
     static final long TEST_GOAL_ID = 1L;
+    static final long TEST_KPI_ID = 1L;
 
     @Test
     void createTest() {
-        GoalDto response = create(new GoalCreateDto(
-                1L,
+        KpiDto response = create(new KpiCreateDto(
+                TEST_USER_ID,
+                TEST_GOAL_ID,
                 "title",
                 "description",
                 Instant.parse("2025-04-27T00:00:00Z"),
@@ -28,62 +31,63 @@ public class GoalApiTest {
         System.out.println("response = " + response);
     }
 
-    GoalDto create(GoalCreateDto request) {
+    KpiDto create(KpiCreateDto request) {
         return restClient.post()
-                .uri("/goals")
+                .uri("/kpis")
                 .body(request)
                 .retrieve()
-                .body(GoalDto.class);
+                .body(KpiDto.class);
     }
 
     @Test
     void readTest() {
-        GoalDto response = read(TEST_GOAL_ID);
+        KpiDto response = read(TEST_KPI_ID);
         System.out.println("response = " + response);
     }
 
-    GoalDto read(Long goalId) {
+    KpiDto read(Long kpiId) {
         return restClient.get()
-                .uri("/goals/{goalId}", goalId)
+                .uri("/kpis/{kpiId}", kpiId)
                 .retrieve()
-                .body(GoalDto.class);
+                .body(KpiDto.class);
     }
 
     @Test
     void updateTest() {
-        update(TEST_GOAL_ID, new GoalUpdateDto(TEST_USER_ID, "new title", "new description", null, null));
-        GoalDto response = read(TEST_GOAL_ID);
+        update(TEST_KPI_ID, new KpiUpdateDto(TEST_USER_ID, "new title", "new description", KpiStatus.IN_PROGRESS, null, null));
+        KpiDto response = read(TEST_KPI_ID);
         System.out.println("response = " + response);
     }
 
-    void update(Long goalId, GoalUpdateDto request) {
+    void update(Long kpiId, KpiUpdateDto request) {
         restClient.put()
-                .uri("/goals/{goalId}", goalId)
+                .uri("/kpis/{kpiId}", kpiId)
                 .body(request)
                 .retrieve()
-                .body(GoalDto.class);
+                .body(KpiDto.class);
     }
 
     @Test
     void deleteTest() {
-        delete(TEST_GOAL_ID, TEST_USER_ID);
-        assertThrows(Exception.class, () -> read(TEST_GOAL_ID));
+        delete(TEST_KPI_ID, TEST_USER_ID);
+        assertThrows(Exception.class, () -> read(TEST_KPI_ID));
     }
 
-    void delete(Long goalId, Long userId) {
+    void delete(Long kpiId, Long userId) {
         restClient.delete()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/goals/{goalId}")
+                        .path("/kpis/{kpiId}")
                         .queryParam("userId", userId)
-                        .build(goalId))
+                        .build(kpiId))
                 .retrieve()
                 .body(Void.class);
     }
 
     @Getter
     @AllArgsConstructor
-    static class GoalCreateDto {
+    static class KpiCreateDto {
         private Long userId;
+        private Long goalId;
         private String title;
         private String description;
         private Instant startAt;
@@ -92,10 +96,11 @@ public class GoalApiTest {
 
     @Getter
     @AllArgsConstructor
-    static class GoalUpdateDto {
+    static class KpiUpdateDto {
         private Long userId;
         private String title;
         private String description;
+        private KpiStatus status;
         private Instant startAt;
         private Instant endAt;
     }

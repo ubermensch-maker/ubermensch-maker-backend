@@ -10,6 +10,7 @@ import java.time.Instant;
 @ToString
 public class GoalDto {
     private Long id;
+    private Long userId;
     private String title;
     private String description;
     private Instant startAt;
@@ -20,6 +21,7 @@ public class GoalDto {
     public static GoalDto from(Goal goal) {
         GoalDto response = new GoalDto();
         response.id = goal.getId();
+        response.userId = goal.getUser().getId();
         response.title = goal.getTitle();
         response.description = goal.getDescription();
         response.startAt = goal.getStartAt();

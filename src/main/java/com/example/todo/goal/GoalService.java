@@ -1,8 +1,8 @@
 package com.example.todo.goal;
 
 import com.example.todo.goal.dto.GoalCreateDto;
-import com.example.todo.goal.dto.GoalUpdateDto;
 import com.example.todo.goal.dto.GoalDto;
+import com.example.todo.goal.dto.GoalUpdateDto;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -19,7 +19,6 @@ public class GoalService {
 
     @Transactional
     public GoalDto create(GoalCreateDto request) {
-        // TODO(jiyoung): replace with login user
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -46,7 +45,6 @@ public class GoalService {
 
     @Transactional
     public GoalDto update(Long goalId, GoalUpdateDto request) {
-        // TODO(jiyoung): replace with login user
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -54,7 +52,7 @@ public class GoalService {
                 .orElseThrow(() -> new RuntimeException("Goal not found"));
 
         if (!user.getId().equals(goal.getUser().getId())) {
-            throw new RuntimeException("Unauthorized: not the goal owner");
+            throw new RuntimeException("Unauthorized update");
         }
 
         goal.update(
@@ -69,7 +67,6 @@ public class GoalService {
 
     @Transactional
     public void delete(Long goalId, Long userId) {
-        // TODO(jiyoung): replace with login user
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -77,9 +74,10 @@ public class GoalService {
                 .orElseThrow(() -> new RuntimeException("Goal not found"));
 
         if (!user.getId().equals(goal.getUser().getId())) {
-            throw new RuntimeException("Unauthorized: not the goal owner");
+            throw new RuntimeException("Unauthorized delete");
         }
 
+        // TODO(jiyoung): delete related kpis and tasks
         goalRepository.delete(goal);
     }
 }
