@@ -26,8 +26,8 @@ public class TaskDto {
         TaskDto response = new TaskDto();
         response.id = task.getId();
         response.userId = task.getUser().getId();
-        response.goalId = task.getGoal().getId();
-        response.kpiId = task.getKpi().getId();
+        response.goalId = task.getGoal() != null ? task.getGoal().getId() : null;
+        response.kpiId = task.getKpi() != null ? task.getKpi().getId() : null;
         response.title = task.getTitle();
         response.description = task.getDescription();
         response.status = task.getStatus();

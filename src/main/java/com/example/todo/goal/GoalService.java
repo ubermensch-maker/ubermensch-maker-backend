@@ -3,6 +3,8 @@ package com.example.todo.goal;
 import com.example.todo.goal.dto.GoalCreateDto;
 import com.example.todo.goal.dto.GoalDto;
 import com.example.todo.goal.dto.GoalUpdateDto;
+import com.example.todo.kpi.KpiRepository;
+import com.example.todo.task.TaskRepository;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -16,6 +18,8 @@ import java.util.List;
 public class GoalService {
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
+    private final KpiRepository kpiRepository;
+    private final TaskRepository taskRepository;
 
     @Transactional
     public GoalDto create(GoalCreateDto request) {
@@ -77,7 +81,10 @@ public class GoalService {
             throw new RuntimeException("Unauthorized delete");
         }
 
-        // TODO(jiyoung): delete related kpis and tasks
+        taskRepository.deleteAllByGoalId(goalId);
+
+        kpiRepository.deleteAllByGoalId(goalId);
+
         goalRepository.delete(goal);
     }
 }
