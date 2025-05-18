@@ -5,6 +5,7 @@ import com.example.todo.goal.GoalRepository;
 import com.example.todo.kpi.dto.KpiCreateDto;
 import com.example.todo.kpi.dto.KpiDto;
 import com.example.todo.kpi.dto.KpiUpdateDto;
+import com.example.todo.task.TaskRepository;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -19,6 +20,7 @@ public class KpiService {
     private final KpiRepository kpiRepository;
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
+    private final TaskRepository taskRepository;
 
     @Transactional
     public KpiDto create(KpiCreateDto request) {
@@ -93,7 +95,8 @@ public class KpiService {
             throw new RuntimeException("Unauthorized delete");
         }
 
-        // TODO(jiyoung): delete related tasks
+        taskRepository.deleteAllByKpiId(kpiId);
+
         kpiRepository.delete(kpi);
     }
 }
