@@ -32,32 +32,27 @@ public class User {
     @Column(nullable = false)
     private UserRole role;
 
-    @Column(nullable = false)
-    private String timezone;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public static User create(String email, String password, String name, UserRole role, String timezone) {
+    public static User create(String email, String password, String name, UserRole role) {
         User user = new User();
         user.email = email;
         user.password = password;
         user.name = name;
         user.role = role;
-        user.timezone = timezone;
         user.createdAt = Instant.now();
         user.updatedAt = user.createdAt;
         return user;
     }
 
-    public void update(String email, String password, String name, String timezone) {
+    public void update(String email, String password, String name) {
         if (email != null) this.email = email;
         if (password != null) this.password = password;
         if (name != null) this.name = name;
-        if (timezone != null) this.timezone = timezone;
         this.updatedAt = Instant.now();
     }
 }

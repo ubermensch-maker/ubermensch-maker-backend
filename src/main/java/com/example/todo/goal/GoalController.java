@@ -2,11 +2,10 @@ package com.example.todo.goal;
 
 import com.example.todo.goal.dto.GoalCreateDto;
 import com.example.todo.goal.dto.GoalDto;
+import com.example.todo.goal.dto.GoalListDto;
 import com.example.todo.goal.dto.GoalUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,8 +13,8 @@ public class GoalController {
     private final GoalService goalService;
 
     @PostMapping("/goals")
-    public GoalDto create(@RequestBody GoalCreateDto request) {
-        return goalService.create(request);
+    public GoalDto create(@RequestParam Long userId, @RequestBody GoalCreateDto request) {
+        return goalService.create(userId, request);
     }
 
     @GetMapping("/goals/{goalId}")
@@ -24,17 +23,17 @@ public class GoalController {
     }
 
     @GetMapping("/goals")
-    public List<GoalDto> list(@RequestParam Long userId) {
+    public GoalListDto list(@RequestParam Long userId) {
         return goalService.list(userId);
     }
 
     @PutMapping("/goals/{goalId}")
-    public GoalDto update(@PathVariable Long goalId, @RequestBody GoalUpdateDto request) {
-        return goalService.update(goalId, request);
+    public GoalDto update(@RequestParam Long userId, @PathVariable Long goalId, @RequestBody GoalUpdateDto request) {
+        return goalService.update(userId, goalId, request);
     }
 
     @DeleteMapping("/goals/{goalId}")
-    public void delete(@PathVariable Long goalId, @RequestParam Long userId) {
-        goalService.delete(goalId, userId);
+    public void delete(@RequestParam Long userId, @PathVariable Long goalId) {
+        goalService.delete(userId, goalId);
     }
 }

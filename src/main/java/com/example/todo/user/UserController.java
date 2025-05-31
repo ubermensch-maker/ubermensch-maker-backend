@@ -1,12 +1,10 @@
 package com.example.todo.user;
 
 import com.example.todo.user.dto.UserCreateDto;
-import com.example.todo.user.dto.UserUpdateDto;
 import com.example.todo.user.dto.UserDto;
+import com.example.todo.user.dto.UserUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,11 +19,6 @@ public class UserController {
     @GetMapping("/users/{userId}")
     public UserDto read(@PathVariable Long userId) {
         return userService.read(userId);
-    }
-
-    @GetMapping("/users")
-    public List<UserDto> list() {
-        return userService.list();
     }
 
     @PutMapping("/users/{userId}")

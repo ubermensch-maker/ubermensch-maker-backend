@@ -15,9 +15,7 @@ public class UserApiTest {
 
     @Test
     void createTest() {
-        UserDto response = create(new UserCreateDto(
-                "test@gmail.com", "password", "name", "Asia/Seoul"
-        ));
+        UserDto response = create(new UserCreateDto("test@gmail.com", "password", "name"));
         System.out.println("response = " + response);
     }
 
@@ -44,7 +42,7 @@ public class UserApiTest {
 
     @Test
     void updateTest() {
-        update(TEST_USER_ID, new UserUpdateDto(null, "updated password", "new name", null));
+        update(TEST_USER_ID, new UserUpdateDto("new email", "new password", "new name"));
         UserDto response = read(TEST_USER_ID);
         System.out.println("response = " + response);
     }
@@ -76,7 +74,6 @@ public class UserApiTest {
         private String email;
         private String password;
         private String name;
-        private String timezone;
     }
 
     @Getter
@@ -85,6 +82,5 @@ public class UserApiTest {
         private String email;
         private String password;
         private String name;
-        private String timezone;
     }
 }
