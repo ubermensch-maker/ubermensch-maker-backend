@@ -1,6 +1,7 @@
 package com.example.todo.goal.dto;
 
 import com.example.todo.goal.Goal;
+import com.example.todo.goal.enums.GoalStatus;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -13,6 +14,7 @@ public class GoalDto {
     private Long userId;
     private String title;
     private String description;
+    private GoalStatus status;
     private Instant startAt;
     private Instant endAt;
     private Instant createdAt;
@@ -24,6 +26,7 @@ public class GoalDto {
         response.userId = goal.getUser().getId();
         response.title = goal.getTitle();
         response.description = goal.getDescription();
+        response.status = goal.getStatus();
         response.startAt = goal.getStartAt();
         response.endAt = goal.getEndAt();
         response.createdAt = goal.getCreatedAt();

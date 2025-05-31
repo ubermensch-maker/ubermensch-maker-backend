@@ -14,7 +14,6 @@ public class UserDto {
     private String email;
     private String name;
     private UserRole role;
-    private String timezone;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -24,7 +23,6 @@ public class UserDto {
         response.email = user.getEmail();
         response.name = user.getName();
         response.role = user.getRole();
-        response.timezone = user.getTimezone();
         response.createdAt = user.getCreatedAt();
         response.updatedAt = user.getUpdatedAt();
         return response;

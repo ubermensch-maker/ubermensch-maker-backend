@@ -1,8 +1,8 @@
-package com.example.todo.task;
+package com.example.todo.quest;
 
 import com.example.todo.goal.Goal;
-import com.example.todo.kpi.Kpi;
-import com.example.todo.task.enums.TaskStatus;
+import com.example.todo.milestone.Milestone;
+import com.example.todo.quest.enums.QuestStatus;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,11 +13,11 @@ import lombok.ToString;
 import java.time.Instant;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "quests")
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Task {
+public class Quest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,8 +31,8 @@ public class Task {
     private Goal goal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "kpi_id")
-    private Kpi kpi;
+    @JoinColumn(name = "milestone_id")
+    private Milestone milestone;
 
     @Column(nullable = false)
     private String title;
@@ -41,7 +41,7 @@ public class Task {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TaskStatus status = TaskStatus.PENDING;
+    private QuestStatus status;
 
     @Column(name = "start_at")
     private Instant startAt;
@@ -55,22 +55,22 @@ public class Task {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public static Task create(User user, Goal goal, Kpi kpi, String title, String description, Instant startAt, Instant endAt) {
-        Task task = new Task();
-        task.user = user;
-        task.goal = goal;
-        task.kpi = kpi;
-        task.title = title;
-        task.description = description;
-        task.status = TaskStatus.PENDING;
-        task.startAt = startAt;
-        task.endAt = endAt;
-        task.createdAt = Instant.now();
-        task.updatedAt = task.createdAt;
-        return task;
+    public static Quest create(User user, Goal goal, Milestone milestone, String title, String description, Instant startAt, Instant endAt) {
+        Quest quest = new Quest();
+        quest.user = user;
+        quest.goal = goal;
+        quest.milestone = milestone;
+        quest.title = title;
+        quest.description = description;
+        quest.status = QuestStatus.NOT_STARTED;
+        quest.startAt = startAt;
+        quest.endAt = endAt;
+        quest.createdAt = Instant.now();
+        quest.updatedAt = quest.createdAt;
+        return quest;
     }
 
-    public void update(String title, String description, TaskStatus status, Instant startAt, Instant endAt) {
+    public void update(String title, String description, QuestStatus status, Instant startAt, Instant endAt) {
         if (title != null) this.title = title;
         if (description != null) this.description = description;
         if (status != null) this.status = status;

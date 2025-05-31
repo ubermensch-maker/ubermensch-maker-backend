@@ -6,7 +6,6 @@ import java.time.Instant;
 
 @Getter
 public class GoalCreateDto {
-    private Long userId;
     private String title;
     private String description;
     private Instant startAt;

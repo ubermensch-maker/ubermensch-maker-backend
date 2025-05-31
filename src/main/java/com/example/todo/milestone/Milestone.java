@@ -1,7 +1,7 @@
-package com.example.todo.kpi;
+package com.example.todo.milestone;
 
 import com.example.todo.goal.Goal;
-import com.example.todo.kpi.enums.KpiStatus;
+import com.example.todo.milestone.enums.MilestoneStatus;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,11 +12,11 @@ import lombok.ToString;
 import java.time.Instant;
 
 @Entity
-@Table(name = "kpis")
+@Table(name = "milestones")
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Kpi {
+public class Milestone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,7 +36,7 @@ public class Kpi {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private KpiStatus status = KpiStatus.PENDING;
+    private MilestoneStatus status;
 
     @Column(name = "start_at")
     private Instant startAt;
@@ -50,21 +50,21 @@ public class Kpi {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public static Kpi create(User user, Goal goal, String title, String description, Instant startAt, Instant endAt) {
-        Kpi kpi = new Kpi();
-        kpi.user = user;
-        kpi.goal = goal;
-        kpi.title = title;
-        kpi.description = description;
-        kpi.status = KpiStatus.PENDING;
-        kpi.startAt = startAt;
-        kpi.endAt = endAt;
-        kpi.createdAt = Instant.now();
-        kpi.updatedAt = kpi.createdAt;
-        return kpi;
+    public static Milestone create(User user, Goal goal, String title, String description, Instant startAt, Instant endAt) {
+        Milestone milestone = new Milestone();
+        milestone.user = user;
+        milestone.goal = goal;
+        milestone.title = title;
+        milestone.description = description;
+        milestone.status = MilestoneStatus.NOT_STARTED;
+        milestone.startAt = startAt;
+        milestone.endAt = endAt;
+        milestone.createdAt = Instant.now();
+        milestone.updatedAt = milestone.createdAt;
+        return milestone;
     }
 
-    public void update(String title, String description, KpiStatus status, Instant startAt, Instant endAt) {
+    public void update(String title, String description, MilestoneStatus status, Instant startAt, Instant endAt) {
         if (title != null) this.title = title;
         if (description != null) this.description = description;
         if (status != null) this.status = status;

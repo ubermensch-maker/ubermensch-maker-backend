@@ -1,16 +1,15 @@
-package com.example.todo.task.dto;
+package com.example.todo.quest.dto;
 
+import com.example.todo.quest.enums.QuestStatus;
 import lombok.Getter;
 
 import java.time.Instant;
 
 @Getter
-public class TaskCreateDto {
-    private Long userId;
-    private Long goalId;
-    private Long kpiId;
+public class QuestUpdateDto {
     private String title;
     private String description;
+    private QuestStatus status;
     private Instant startAt;
     private Instant endAt;
 }

@@ -1,5 +1,6 @@
 package com.example.todo.goal;
 
+import com.example.todo.goal.enums.GoalStatus;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,6 +29,10 @@ public class Goal {
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GoalStatus status;
+
     @Column(name = "start_at")
     private Instant startAt;
 
@@ -45,6 +50,7 @@ public class Goal {
         goal.user = user;
         goal.title = title;
         goal.description = description;
+        goal.status = GoalStatus.NOT_STARTED;
         goal.startAt = startAt;
         goal.endAt = endAt;
         goal.createdAt = Instant.now();
@@ -52,9 +58,10 @@ public class Goal {
         return goal;
     }
 
-    public void update(String title, String description, Instant startAt, Instant endAt) {
+    public void update(String title, String description, GoalStatus status, Instant startAt, Instant endAt) {
         if (title != null) this.title = title;
         if (description != null) this.description = description;
+        if (status != null) this.status = status;
         if (startAt != null) this.startAt = startAt;
         if (endAt != null) this.endAt = endAt;
         this.updatedAt = Instant.now();

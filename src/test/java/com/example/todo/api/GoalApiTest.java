@@ -1,6 +1,7 @@
 package com.example.todo.api;
 
 import com.example.todo.goal.dto.GoalDto;
+import com.example.todo.goal.enums.GoalStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.junit.jupiter.api.Test;
@@ -18,8 +19,7 @@ public class GoalApiTest {
 
     @Test
     void createTest() {
-        GoalDto response = create(new GoalCreateDto(
-                1L,
+        GoalDto response = create(TEST_USER_ID, new GoalCreateDto(
                 "title",
                 "description",
                 Instant.parse("2025-04-27T00:00:00Z"),
@@ -28,9 +28,13 @@ public class GoalApiTest {
         System.out.println("response = " + response);
     }
 
-    GoalDto create(GoalCreateDto request) {
+    GoalDto create(Long userId, GoalCreateDto request) {
         return restClient.post()
-                .uri("/goals")
+                .uri(uriBuilder -> uriBuilder
+                        .path("/goals")
+                        .queryParam("userId", userId)
+                        .build()
+                )
                 .body(request)
                 .retrieve()
                 .body(GoalDto.class);
@@ -51,14 +55,24 @@ public class GoalApiTest {
 
     @Test
     void updateTest() {
-        update(TEST_GOAL_ID, new GoalUpdateDto(TEST_USER_ID, "new title", "new description", null, null));
+        update(TEST_USER_ID, TEST_GOAL_ID, new GoalUpdateDto(
+                "new title",
+                "new description",
+                GoalStatus.IN_PROGRESS,
+                null,
+                null
+        ));
         GoalDto response = read(TEST_GOAL_ID);
         System.out.println("response = " + response);
     }
 
-    void update(Long goalId, GoalUpdateDto request) {
+    void update(Long userId, Long goalId, GoalUpdateDto request) {
         restClient.put()
-                .uri("/goals/{goalId}", goalId)
+                .uri(uriBuilder -> uriBuilder
+                        .path("/goals/{goalId}")
+                        .queryParam("userId", userId)
+                        .build(goalId)
+                )
                 .body(request)
                 .retrieve()
                 .body(GoalDto.class);
@@ -66,11 +80,11 @@ public class GoalApiTest {
 
     @Test
     void deleteTest() {
-        delete(TEST_GOAL_ID, TEST_USER_ID);
+        delete(TEST_USER_ID, TEST_GOAL_ID);
         assertThrows(Exception.class, () -> read(TEST_GOAL_ID));
     }
 
-    void delete(Long goalId, Long userId) {
+    void delete(Long userId, Long goalId) {
         restClient.delete()
                 .uri(uriBuilder -> uriBuilder
                         .path("/goals/{goalId}")
@@ -83,7 +97,6 @@ public class GoalApiTest {
     @Getter
     @AllArgsConstructor
     static class GoalCreateDto {
-        private Long userId;
         private String title;
         private String description;
         private Instant startAt;
@@ -93,9 +106,9 @@ public class GoalApiTest {
     @Getter
     @AllArgsConstructor
     static class GoalUpdateDto {
-        private Long userId;
         private String title;
         private String description;
+        private GoalStatus status;
         private Instant startAt;
         private Instant endAt;
     }
