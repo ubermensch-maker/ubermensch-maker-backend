@@ -1,9 +1,5 @@
 package com.example.todo.milestone;
 
-import com.example.todo.common.exception.ForbiddenException;
-import com.example.todo.common.exception.GoalNotFoundException;
-import com.example.todo.common.exception.MilestoneNotFoundException;
-import com.example.todo.common.exception.UserNotFoundException;
 import com.example.todo.goal.Goal;
 import com.example.todo.goal.GoalRepository;
 import com.example.todo.milestone.dto.MilestoneCreateDto;
@@ -15,7 +11,9 @@ import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,10 +28,10 @@ public class MilestoneService {
     @Transactional
     public MilestoneDto create(Long userId, MilestoneCreateDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Goal goal = goalRepository.findById(request.getGoalId())
-                .orElseThrow(GoalNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
 
         Milestone milestone = Milestone.create(
                 user,
@@ -49,7 +47,7 @@ public class MilestoneService {
 
     public MilestoneDto read(Long milestoneId) {
         Milestone milestone = milestoneRepository.findById(milestoneId)
-                .orElseThrow(MilestoneNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Milestone not found"));
 
         return MilestoneDto.from(milestone);
     }
@@ -72,13 +70,16 @@ public class MilestoneService {
     @Transactional
     public MilestoneDto update(Long userId, Long milestoneId, MilestoneUpdateDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Milestone milestone = milestoneRepository.findById(milestoneId)
-                .orElseThrow(MilestoneNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Milestone not found"));
 
         if (!user.getId().equals(milestone.getUser().getId())) {
-            throw new ForbiddenException();
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You do not have permission to update this milestone"
+            );
         }
 
         milestone.update(
@@ -95,13 +96,16 @@ public class MilestoneService {
     @Transactional
     public void delete(Long userId, Long milestoneId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Milestone milestone = milestoneRepository.findById(milestoneId)
-                .orElseThrow(MilestoneNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Milestone not found"));
 
         if (!user.getId().equals(milestone.getUser().getId())) {
-            throw new ForbiddenException();
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You do not have permission to delete this milestone"
+            );
         }
 
         questRepository.deleteAllByMilestoneId(milestoneId);

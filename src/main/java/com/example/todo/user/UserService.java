@@ -1,14 +1,15 @@
 package com.example.todo.user;
 
-import com.example.todo.common.exception.UserNotFoundException;
 import com.example.todo.user.dto.UserCreateDto;
 import com.example.todo.user.dto.UserDto;
 import com.example.todo.user.dto.UserUpdateDto;
 import com.example.todo.user.enums.UserRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,7 @@ public class UserService {
 
     public UserDto read(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         return UserDto.from(user);
     }
@@ -42,7 +43,7 @@ public class UserService {
     @Transactional
     public UserDto update(Long userId, UserUpdateDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         String encodedPassword = request.getPassword() != null
                 ? passwordEncoder.encode(request.getPassword())
@@ -60,7 +61,7 @@ public class UserService {
     @Transactional
     public void delete(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         userRepository.delete(user);
     }
