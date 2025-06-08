@@ -2,6 +2,7 @@ package com.example.todo.conversation;
 
 import com.example.todo.conversation.dto.ConversationCreateDto;
 import com.example.todo.conversation.dto.ConversationDto;
+import com.example.todo.conversation.dto.ConversationListDto;
 import com.example.todo.conversation.dto.ConversationUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,11 @@ public class ConversationController {
     @GetMapping("/conversations/{conversationId}")
     public ConversationDto read(@PathVariable Long conversationId) {
         return conversationService.read(conversationId);
+    }
+
+    @GetMapping("/conversations")
+    public ConversationListDto list(@RequestParam Long userId, @RequestParam(required = false) Long goalId) {
+        return conversationService.list(userId, goalId);
     }
 
     @PutMapping("/conversations/{conversationId}")

@@ -2,6 +2,7 @@ package com.example.todo.conversation;
 
 import com.example.todo.conversation.dto.ConversationCreateDto;
 import com.example.todo.conversation.dto.ConversationDto;
+import com.example.todo.conversation.dto.ConversationListDto;
 import com.example.todo.conversation.dto.ConversationUpdateDto;
 import com.example.todo.goal.Goal;
 import com.example.todo.goal.GoalRepository;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +43,21 @@ public class ConversationService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation not found"));
 
         return ConversationDto.from(conversation);
+    }
+
+    public ConversationListDto list(Long userId, Long goalId) {
+        List<Conversation> conversations;
+
+        if (goalId != null) {
+            conversations = conversationRepository.findAllByUserIdAndGoalId(userId, goalId);
+        } else {
+            conversations = conversationRepository.findAllByUserId(userId);
+        }
+
+        return new ConversationListDto(
+                conversations.size(),
+                conversations.stream().map(ConversationDto::from).toList()
+        );
     }
 
     @Transactional
