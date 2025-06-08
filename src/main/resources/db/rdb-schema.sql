@@ -48,6 +48,7 @@ create table quests
     milestone_id int references milestones (id),
     title        text        not null,
     description  text,
+    type         text        not null,
     status       text        not null,
     start_at     timestamptz,
     end_at       timestamptz,
@@ -60,7 +61,7 @@ create table conversations
 (
     id         serial primary key,
     user_id    int         not null references users (id),
-    goal_id    int references goals (id),
+    goal_id    int         not null references goals (id),
     title      text        not null,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()

@@ -1,6 +1,5 @@
 package com.example.todo.quest;
 
-import com.example.todo.common.exception.*;
 import com.example.todo.goal.Goal;
 import com.example.todo.goal.GoalRepository;
 import com.example.todo.milestone.Milestone;
@@ -13,7 +12,9 @@ import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -28,18 +29,18 @@ public class QuestService {
     @Transactional
     public QuestDto create(Long userId, QuestCreateDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Goal goal = null;
         if (request.getGoalId() != null) {
             goal = goalRepository.findById(request.getGoalId())
-                    .orElseThrow(GoalNotFoundException::new);
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
         }
 
         Milestone milestone = null;
         if (request.getMilestoneId() != null) {
             milestone = milestoneRepository.findById(request.getMilestoneId())
-                    .orElseThrow(MilestoneNotFoundException::new);
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Milestone not found"));
         }
 
         Quest quest = Quest.create(
@@ -48,6 +49,7 @@ public class QuestService {
                 milestone,
                 request.getTitle(),
                 request.getDescription(),
+                request.getType(),
                 request.getStartAt(),
                 request.getEndAt()
         );
@@ -57,7 +59,7 @@ public class QuestService {
 
     public QuestDto read(Long questId) {
         Quest quest = questRepository.findById(questId)
-                .orElseThrow(QuestNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quest not found"));
 
         return QuestDto.from(quest);
     }
@@ -82,18 +84,22 @@ public class QuestService {
     @Transactional
     public QuestDto update(Long userId, Long questId, QuestUpdateDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Quest quest = questRepository.findById(questId)
-                .orElseThrow(QuestNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quest not found"));
 
         if (!user.getId().equals(quest.getUser().getId())) {
-            throw new ForbiddenException();
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You do not have permission to update this quest"
+            );
         }
 
         quest.update(
                 request.getTitle(),
                 request.getDescription(),
+                request.getType(),
                 request.getStatus(),
                 request.getStartAt(),
                 request.getEndAt()
@@ -105,13 +111,16 @@ public class QuestService {
     @Transactional
     public void delete(Long userId, Long questId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Quest quest = questRepository.findById(questId)
-                .orElseThrow(QuestNotFoundException::new);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Quest not found"));
 
         if (!user.getId().equals(quest.getUser().getId())) {
-            throw new ForbiddenException();
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You do not have permission to delete this quest"
+            );
         }
 
         questRepository.delete(quest);

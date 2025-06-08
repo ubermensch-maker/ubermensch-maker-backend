@@ -2,6 +2,7 @@ package com.example.todo.api;
 
 import com.example.todo.quest.dto.QuestDto;
 import com.example.todo.quest.enums.QuestStatus;
+import com.example.todo.quest.enums.QuestType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ public class QuestApiTest {
                 TEST_MILESTONE_ID,
                 "title",
                 "description",
+                QuestType.DAILY,
                 Instant.parse("2025-04-27T00:00:00Z"),
                 Instant.parse("2025-04-30T00:00:00Z")
         ));
@@ -99,6 +101,7 @@ public class QuestApiTest {
         private Long milestoneId;
         private String title;
         private String description;
+        private QuestType type;
         private Instant startAt;
         private Instant endAt;
     }

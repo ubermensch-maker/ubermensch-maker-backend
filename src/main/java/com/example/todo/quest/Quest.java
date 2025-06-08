@@ -3,6 +3,7 @@ package com.example.todo.quest;
 import com.example.todo.goal.Goal;
 import com.example.todo.milestone.Milestone;
 import com.example.todo.quest.enums.QuestStatus;
+import com.example.todo.quest.enums.QuestType;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -41,6 +42,10 @@ public class Quest {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private QuestType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private QuestStatus status;
 
     @Column(name = "start_at")
@@ -55,13 +60,14 @@ public class Quest {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public static Quest create(User user, Goal goal, Milestone milestone, String title, String description, Instant startAt, Instant endAt) {
+    public static Quest create(User user, Goal goal, Milestone milestone, String title, String description, QuestType type, Instant startAt, Instant endAt) {
         Quest quest = new Quest();
         quest.user = user;
         quest.goal = goal;
         quest.milestone = milestone;
         quest.title = title;
         quest.description = description;
+        quest.type = type;
         quest.status = QuestStatus.NOT_STARTED;
         quest.startAt = startAt;
         quest.endAt = endAt;
@@ -70,9 +76,10 @@ public class Quest {
         return quest;
     }
 
-    public void update(String title, String description, QuestStatus status, Instant startAt, Instant endAt) {
+    public void update(String title, String description, QuestType type, QuestStatus status, Instant startAt, Instant endAt) {
         if (title != null) this.title = title;
         if (description != null) this.description = description;
+        if (type != null) this.type = type;
         if (status != null) this.status = status;
         if (startAt != null) this.startAt = startAt;
         if (endAt != null) this.endAt = endAt;
