@@ -4,16 +4,23 @@ import com.example.todo.milestone.dto.MilestoneCreateDto;
 import com.example.todo.milestone.dto.MilestoneDto;
 import com.example.todo.milestone.dto.MilestoneListDto;
 import com.example.todo.milestone.dto.MilestoneUpdateDto;
+import com.example.todo.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class MilestoneController {
     private final MilestoneService milestoneService;
+    private final UserService userService;
 
     @PostMapping("/milestones")
-    public MilestoneDto create(@RequestParam Long userId, @RequestBody MilestoneCreateDto request) {
+    public MilestoneDto create(
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
+            @RequestBody MilestoneCreateDto request
+    ) {
+        Long userId = userService.getByEmail(principal.getUsername()).getId();
         return milestoneService.create(userId, request);
     }
 
@@ -23,17 +30,30 @@ public class MilestoneController {
     }
 
     @GetMapping("/milestones")
-    public MilestoneListDto list(@RequestParam Long userId, @RequestParam(required = false) Long goalId) {
+    public MilestoneListDto list(
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
+            @RequestParam(required = false) Long goalId
+    ) {
+        Long userId = userService.getByEmail(principal.getUsername()).getId();
         return milestoneService.list(userId, goalId);
     }
 
     @PutMapping("/milestones/{milestoneId}")
-    public MilestoneDto update(@RequestParam Long userId, @PathVariable Long milestoneId, @RequestBody MilestoneUpdateDto request) {
+    public MilestoneDto update(
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
+            @PathVariable Long milestoneId,
+            @RequestBody MilestoneUpdateDto request
+    ) {
+        Long userId = userService.getByEmail(principal.getUsername()).getId();
         return milestoneService.update(userId, milestoneId, request);
     }
 
     @DeleteMapping("/milestones/{milestoneId}")
-    public void delete(@RequestParam Long userId, @PathVariable Long milestoneId) {
+    public void delete(
+            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
+            @PathVariable Long milestoneId
+    ) {
+        Long userId = userService.getByEmail(principal.getUsername()).getId();
         milestoneService.delete(userId, milestoneId);
     }
 }

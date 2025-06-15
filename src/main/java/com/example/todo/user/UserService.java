@@ -62,4 +62,9 @@ public class UserService implements UserDetailsService {
 
         userRepository.delete(user);
     }
+
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
 }
