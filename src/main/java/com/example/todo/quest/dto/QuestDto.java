@@ -2,6 +2,7 @@ package com.example.todo.quest.dto;
 
 import com.example.todo.quest.Quest;
 import com.example.todo.quest.enums.QuestStatus;
+import com.example.todo.quest.enums.QuestType;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -16,6 +17,7 @@ public class QuestDto {
     private Long milestoneId;
     private String title;
     private String description;
+    private QuestType type;
     private QuestStatus status;
     private Instant startAt;
     private Instant endAt;
@@ -30,6 +32,7 @@ public class QuestDto {
         response.milestoneId = quest.getMilestone() != null ? quest.getMilestone().getId() : null;
         response.title = quest.getTitle();
         response.description = quest.getDescription();
+        response.type = quest.getType();
         response.status = quest.getStatus();
         response.startAt = quest.getStartAt();
         response.endAt = quest.getEndAt();
