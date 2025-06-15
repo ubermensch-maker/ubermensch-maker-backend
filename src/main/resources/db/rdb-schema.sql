@@ -73,9 +73,9 @@ create table messages
     id              serial primary key,
     conversation_id int         not null references conversations (id),
     user_id         int references users (id),
+    model           text        not null,
     role            text        not null,
-    type            text        not null,
-    content         text        not null,
+    content         jsonb       not null,
     created_at      timestamptz not null default now(),
     updated_at      timestamptz not null default now()
 );
