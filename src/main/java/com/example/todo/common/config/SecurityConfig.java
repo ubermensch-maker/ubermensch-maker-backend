@@ -1,5 +1,7 @@
 package com.example.todo.common.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.example.todo.common.security.JwtAuthenticationFilter;
 import com.example.todo.common.security.JwtTokenProvider;
 import com.example.todo.user.UserService;
@@ -27,6 +29,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
