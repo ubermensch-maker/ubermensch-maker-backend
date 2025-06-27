@@ -18,35 +18,37 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
+  private final JwtTokenProvider jwtTokenProvider;
+  private final UserService userService;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserService userService) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userService = userService;
-    }
+  public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserService userService) {
+    this.jwtTokenProvider = jwtTokenProvider;
+    this.userService = userService;
+  }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/health").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .userDetailsService(userService)
-                .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider),
-                        UsernamePasswordAuthenticationFilter.class
-                );
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.cors(withDefaults())
+        .csrf(csrf -> csrf.disable())
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/auth/**", "/health")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .userDetailsService(userService)
+        .addFilterBefore(
+            new JwtAuthenticationFilter(jwtTokenProvider),
+            UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+      throws Exception {
+    return config.getAuthenticationManager();
+  }
 }

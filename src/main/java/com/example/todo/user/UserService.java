@@ -15,56 +15,61 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    User user =
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(
+                () -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole().name())
-                .build();
-    }
+    return org.springframework.security.core.userdetails.User.builder()
+        .username(user.getEmail())
+        .password(user.getPassword())
+        .roles(user.getRole().name())
+        .build();
+  }
 
-    public UserDto read(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  public UserDto read(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        return UserDto.from(user);
-    }
+    return UserDto.from(user);
+  }
 
-    @Transactional
-    public UserDto update(Long userId, UserUpdateDto request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  @Transactional
+  public UserDto update(Long userId, UserUpdateDto request) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        String encodedPassword = request.getPassword() != null
-                ? passwordEncoder.encode(request.getPassword())
-                : null;
+    String encodedPassword =
+        request.getPassword() != null ? passwordEncoder.encode(request.getPassword()) : null;
 
-        user.update(
-                request.getEmail(),
-                encodedPassword,
-                request.getName()
-        );
+    user.update(request.getEmail(), encodedPassword, request.getName());
 
-        return UserDto.from(user);
-    }
+    return UserDto.from(user);
+  }
 
-    @Transactional
-    public void delete(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  @Transactional
+  public void delete(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        userRepository.delete(user);
-    }
+    userRepository.delete(user);
+  }
 
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-    }
+  public User getByEmail(String email) {
+    return userRepository
+        .findByEmail(email)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  }
 }

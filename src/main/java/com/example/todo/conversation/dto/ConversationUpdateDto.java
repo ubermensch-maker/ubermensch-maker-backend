@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class ConversationUpdateDto {
-    private String title;
+  private String title;
 }

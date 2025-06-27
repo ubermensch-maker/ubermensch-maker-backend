@@ -1,4 +1,3 @@
 package com.example.todo.auth.dto;
 
-public record JwtResponse(String token) {
-}
+public record JwtResponse(String token) {}

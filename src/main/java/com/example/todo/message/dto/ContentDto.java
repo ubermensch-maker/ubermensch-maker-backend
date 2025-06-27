@@ -9,6 +9,6 @@ import lombok.Getter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 public class ContentDto {
-    private ContentType type;
-    private String text;
+  private ContentType type;
+  private String text;
 }
