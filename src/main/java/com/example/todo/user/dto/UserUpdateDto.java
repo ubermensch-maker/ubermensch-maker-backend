@@ -6,7 +6,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class UserUpdateDto {
-    private String email;
-    private String password;
-    private String name;
+  private String email;
+  private String password;
+  private String name;
 }

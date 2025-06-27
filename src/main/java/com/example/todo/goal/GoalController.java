@@ -12,47 +12,43 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class GoalController {
-    private final GoalService goalService;
-    private final UserService userService;
+  private final GoalService goalService;
+  private final UserService userService;
 
-    @PostMapping("/goals")
-    public GoalDto create(
-            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
-            @RequestBody GoalCreateDto request
-    ) {
-        Long userId = userService.getByEmail(principal.getUsername()).getId();
-        return goalService.create(userId, request);
-    }
+  @PostMapping("/goals")
+  public GoalDto create(
+      @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
+      @RequestBody GoalCreateDto request) {
+    Long userId = userService.getByEmail(principal.getUsername()).getId();
+    return goalService.create(userId, request);
+  }
 
-    @GetMapping("/goals/{goalId}")
-    public GoalDto read(@PathVariable Long goalId) {
-        return goalService.read(goalId);
-    }
+  @GetMapping("/goals/{goalId}")
+  public GoalDto read(@PathVariable Long goalId) {
+    return goalService.read(goalId);
+  }
 
-    @GetMapping("/goals")
-    public GoalListDto list(
-            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal
-    ) {
-        Long userId = userService.getByEmail(principal.getUsername()).getId();
-        return goalService.list(userId);
-    }
+  @GetMapping("/goals")
+  public GoalListDto list(
+      @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
+    Long userId = userService.getByEmail(principal.getUsername()).getId();
+    return goalService.list(userId);
+  }
 
-    @PutMapping("/goals/{goalId}")
-    public GoalDto update(
-            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
-            @PathVariable Long goalId,
-            @RequestBody GoalUpdateDto request
-    ) {
-        Long userId = userService.getByEmail(principal.getUsername()).getId();
-        return goalService.update(userId, goalId, request);
-    }
+  @PutMapping("/goals/{goalId}")
+  public GoalDto update(
+      @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
+      @PathVariable Long goalId,
+      @RequestBody GoalUpdateDto request) {
+    Long userId = userService.getByEmail(principal.getUsername()).getId();
+    return goalService.update(userId, goalId, request);
+  }
 
-    @DeleteMapping("/goals/{goalId}")
-    public void delete(
-            @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
-            @PathVariable Long goalId
-    ) {
-        Long userId = userService.getByEmail(principal.getUsername()).getId();
-        goalService.delete(userId, goalId);
-    }
+  @DeleteMapping("/goals/{goalId}")
+  public void delete(
+      @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
+      @PathVariable Long goalId) {
+    Long userId = userService.getByEmail(principal.getUsername()).getId();
+    goalService.delete(userId, goalId);
+  }
 }
