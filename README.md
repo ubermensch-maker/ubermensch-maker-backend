@@ -18,3 +18,34 @@ CONTAINER ID   IMAGE                          COMMAND                  CREATED  
 2ca585d716bb   postgres:latest                "docker-entrypoint.s…"   35 minutes ago   Up 1 second   0.0.0.0:5432->5432/tcp   db
 ```
 
+## Code Style
+
+이 프로젝트는 Java 코드 스타일 통일을 위해 [google-java-format](https://github.com/google/google-java-format)을 사용합니다.
+
+### VS Code 설정 방법
+
+1. 	Homebrew로 google-java-format 설치 (macOS 기준)
+
+```bash
+brew install google-java-format
+```
+
+2. 실행 파일 경로 확인
+
+```bash
+which google-java-format
+```
+
+3. VS Code 확장 프로그램 google-java-format(작성자: ilkka)을 설치
+
+4. .vscode/settings.json에 아래 설정을 추가
+
+```json
+{
+  "[java]": {
+    "editor.defaultFormatter": "ilkka.google-java-format"
+  },
+  "google-java-format.executable-path": "/opt/homebrew/bin/google-java-format",
+  "editor.formatOnSave": true
+}
+```

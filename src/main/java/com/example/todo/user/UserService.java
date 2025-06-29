@@ -1,8 +1,11 @@
 package com.example.todo.user;
 
+import com.example.todo.auth.dto.SignupRequest;
 import com.example.todo.user.dto.UserDto;
 import com.example.todo.user.dto.UserUpdateDto;
+import com.example.todo.user.enums.UserRole;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +34,23 @@ public class UserService implements UserDetailsService {
         .password(user.getPassword())
         .roles(user.getRole().name())
         .build();
+  }
+
+  public UserDto create(SignupRequest request) {
+    if (findByEmail(request.email()).isPresent()) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
+    }
+
+    User user =
+        User.create(
+            request.email(),
+            passwordEncoder.encode(request.password()),
+            request.name(),
+            UserRole.USER);
+
+    userRepository.save(user);
+
+    return UserDto.from(user);
   }
 
   public UserDto read(Long userId) {
@@ -67,9 +87,16 @@ public class UserService implements UserDetailsService {
     userRepository.delete(user);
   }
 
-  public User getByEmail(String email) {
-    return userRepository
-        .findByEmail(email)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  public Optional<UserDto> findByEmail(String email) {
+    return userRepository.findByEmail(email).map(UserDto::from);
+  }
+
+  public UserDto getByEmail(String email) {
+    User user =
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+    return UserDto.from(user);
   }
 }
