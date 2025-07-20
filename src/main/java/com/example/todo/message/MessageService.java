@@ -14,6 +14,7 @@ import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -68,8 +69,20 @@ public class MessageService {
   }
 
   public MessageListDto list(Long userId, Long conversationId) {
-    List<Message> messages =
-        messageRepository.findAllByUserIdAndConversationId(userId, conversationId);
+    Conversation conversation =
+        conversationRepository
+            .findById(conversationId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation not found"));
+
+    if (!userId.equals(conversation.getUser().getId())) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "You do not have permission to see this message list");
+    }
+
+    // TODO(jiyoung): add pagination
+    Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+    List<Message> messages = messageRepository.findAllByConversationId(conversationId, sort);
 
     return new MessageListDto(messages.size(), messages.stream().map(MessageDto::from).toList());
   }
