@@ -4,5 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum ContentType {
   @JsonProperty("text")
-  TEXT
+  TEXT,
+  @JsonProperty("tool")
+  TOOL,
 }

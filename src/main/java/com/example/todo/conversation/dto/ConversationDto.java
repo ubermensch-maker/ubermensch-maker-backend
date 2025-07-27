@@ -2,15 +2,15 @@ package com.example.todo.conversation.dto;
 
 import com.example.todo.conversation.Conversation;
 import java.time.Instant;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
 public class ConversationDto {
-  private Long id;
+  private UUID id;
   private Long userId;
-  private Long goalId;
   private String title;
   private Instant createdAt;
   private Instant updatedAt;
@@ -19,7 +19,6 @@ public class ConversationDto {
     ConversationDto response = new ConversationDto();
     response.id = conversation.getId();
     response.userId = conversation.getUser().getId();
-    response.goalId = conversation.getGoal().getId();
     response.title = conversation.getTitle();
     response.createdAt = conversation.getCreatedAt();
     response.updatedAt = conversation.getUpdatedAt();

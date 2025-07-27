@@ -8,22 +8,30 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "messages")
+@Table(name = "chat_messages")
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE chat_messages SET deleted_at = NOW() WHERE id = ?")
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  @GeneratedValue
+  @UuidGenerator
+  @Column(columnDefinition = "uuid default uuid_generate_v7()")
+  private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
@@ -33,12 +41,19 @@ public class Message {
   @JoinColumn(name = "conversation_id", nullable = false)
   private Conversation conversation;
 
-  @Column(nullable = false)
-  private String model;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parent_message_id")
+  private Message parentMessage;
+
+  @Column(name = "message_index", nullable = false)
+  private Integer index = 0;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private MessageRole role;
+
+  @Column(nullable = false)
+  private String model;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
@@ -50,15 +65,22 @@ public class Message {
   @Column(name = "updated_at", nullable = false)
   private Instant updatedAt;
 
+  @Column(name = "deleted_at")
+  private Instant deletedAt;
+
   public static Message create(
       @Nullable User user,
       Conversation conversation,
+      @Nullable Message parentMessage,
+      Integer index,
       String model,
       MessageRole role,
       List<ContentDto> content) {
     Message message = new Message();
     message.user = user;
     message.conversation = conversation;
+    message.parentMessage = parentMessage;
+    message.index = index;
     message.model = model;
     message.role = role;
     message.content = content;
