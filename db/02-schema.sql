@@ -5,15 +5,16 @@ create table users
     email      text        not null unique,
     password   text        not null,
     name       text        not null,
-    role       text        not null check ( role in ('USER', 'ADMIN', 'SYSTEM') ),
+    role       text        not null check ( role in ('USER', 'ADMIN') ),
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
+    updated_at timestamptz not null default now(),
+    deleted_at timestamptz
 );
 
 -- goal table
 create table goals
 (
-    id          serial primary key,
+    id         serial primary key,
     user_id     int         not null references users (id),
     title       text        not null,
     description text,
@@ -21,7 +22,8 @@ create table goals
     start_at    timestamptz,
     end_at      timestamptz,
     created_at  timestamptz not null default now(),
-    updated_at  timestamptz not null default now()
+    updated_at  timestamptz not null default now(),
+    deleted_at  timestamptz
 );
 
 -- milestone table
@@ -36,7 +38,8 @@ create table milestones
     start_at    timestamptz,
     end_at      timestamptz,
     created_at  timestamptz not null default now(),
-    updated_at  timestamptz not null default now()
+    updated_at  timestamptz not null default now(),
+    deleted_at  timestamptz
 );
 
 -- quest table
@@ -53,31 +56,35 @@ create table quests
     start_at     timestamptz,
     end_at       timestamptz,
     created_at   timestamptz not null default now(),
-    updated_at   timestamptz not null default now()
+    updated_at   timestamptz not null default now(),
+    deleted_at   timestamptz
 );
 
 -- conversation table
-create table conversations
+create table chat_conversations
 (
-    id         serial primary key,
+    id         uuid default uuid_generate_v7() primary key,
     user_id    int         not null references users (id),
-    goal_id    int         not null references goals (id),
     title      text        not null,
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
+    updated_at timestamptz not null default now(),
+    deleted_at timestamptz
 );
 
 -- message table
-create table messages
+create table chat_messages
 (
-    id              serial primary key,
-    conversation_id int         not null references conversations (id),
-    user_id         int references users (id),
-    model           text        not null,
-    role            text        not null,
-    content         jsonb       not null,
-    created_at      timestamptz not null default now(),
-    updated_at      timestamptz not null default now()
+    id                uuid default uuid_generate_v7() primary key,
+    conversation_id   uuid        not null references chat_conversations (id),
+    parent_message_id uuid        references chat_messages (id),
+    user_id           int         references users (id),
+    message_index     int         not null default 0,
+    model             text        not null,
+    role              text        not null check ( role in ('USER', 'ASSISTANT') ),
+    content           jsonb       not null,
+    created_at        timestamptz not null default now(),
+    updated_at        timestamptz not null default now(),
+    deleted_at        timestamptz
 );
 
 -- memory table
@@ -87,5 +94,6 @@ create table memories
     user_id    int         not null references users (id),
     content    text        not null,
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
+    updated_at timestamptz not null default now(),
+    deleted_at timestamptz
 );

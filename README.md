@@ -18,6 +18,14 @@ CONTAINER ID   IMAGE                          COMMAND                  CREATED  
 2ca585d716bb   postgres:latest                "docker-entrypoint.s…"   35 minutes ago   Up 1 second   0.0.0.0:5432->5432/tcp   db
 ```
 
+PostgreSQL 확장 프로그램:
+PostgreSQL에 UUID v7 확장이 포함되어 있어 데이터베이스 스키마나 확장 프로그램 변경 시 볼륨을 삭제해야 합니다.
+
+```bash
+docker-compose down -v
+docker-compose up --build
+```
+
 ## Code Style
 
 이 프로젝트는 Java 코드 스타일 통일을 위해 [google-java-format](https://github.com/google/google-java-format)을 사용합니다.
