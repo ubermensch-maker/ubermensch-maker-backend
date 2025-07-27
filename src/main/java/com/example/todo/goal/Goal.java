@@ -8,9 +8,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "goals")
+@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE goals SET deleted_at = NOW() WHERE id = ?")
 @Getter
 @ToString(exclude = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,6 +47,9 @@ public class Goal {
 
   @Column(name = "updated_at", nullable = false)
   private Instant updatedAt;
+
+  @Column(name = "deleted_at")
+  private Instant deletedAt;
 
   public static Goal create(
       User user, String title, String description, Instant startAt, Instant endAt) {
