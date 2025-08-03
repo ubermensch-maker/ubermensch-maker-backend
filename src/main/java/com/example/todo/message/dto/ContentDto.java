@@ -1,14 +1,21 @@
 package com.example.todo.message.dto;
 
 import com.example.todo.message.enums.ContentType;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 
 @Getter
-@JsonIgnoreProperties(ignoreUnknown = true)
-@AllArgsConstructor
-public class ContentDto {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = TextContentDto.class, name = "text"),
+  @JsonSubTypes.Type(value = ToolContentDto.class, name = "tool")
+})
+public abstract class ContentDto {
   private ContentType type;
-  private String text;
+
+  protected ContentDto(ContentType type) {
+    this.type = type;
+  }
 }

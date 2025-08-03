@@ -4,6 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class ConversationCreateDto {
-  private Long goalId;
   private String title;
 }

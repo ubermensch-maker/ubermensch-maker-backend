@@ -4,15 +4,19 @@ import com.example.todo.message.Message;
 import com.example.todo.message.enums.MessageRole;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
 public class MessageDto {
-  private Long id;
+  private UUID id;
   private Long userId;
-  private Long conversationId;
+  private UUID conversationId;
+  private UUID parentMessageId;
+  private Integer index;
   private String model;
   private MessageRole role;
   private List<ContentDto> content;
@@ -24,6 +28,8 @@ public class MessageDto {
     response.id = message.getId();
     response.userId = message.getUser() != null ? message.getUser().getId() : null;
     response.conversationId = message.getConversation().getId();
+    response.parentMessageId = message.getParentMessage() != null ? message.getParentMessage().getId() : null;
+    response.index = message.getIndex();
     response.model = message.getModel();
     response.role = message.getRole();
     response.content = message.getContent();
