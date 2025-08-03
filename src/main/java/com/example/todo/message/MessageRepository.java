@@ -10,6 +10,9 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
   List<Message> findAllByConversationId(UUID conversationId, Sort sort);
 
   void deleteAllByConversationId(UUID conversationId);
-  
+
   Optional<Message> findTopByConversationIdOrderByIndexDesc(UUID conversationId);
+
+  Optional<Message> findTopByConversationIdAndIndexLessThanOrderByIndexDesc(
+      UUID conversationId, Integer index);
 }

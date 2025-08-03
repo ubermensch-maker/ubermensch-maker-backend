@@ -7,11 +7,11 @@ import lombok.Getter;
 @Getter
 public class ToolContentDto extends ContentDto {
   private final String name;
-  private final Map<String, Object> input;
+  private final Map<String, Object> args;
 
-  public ToolContentDto(String name, Map<String, Object> input) {
+  public ToolContentDto(String name, Map<String, Object> args) {
     super(ContentType.TOOL);
     this.name = name;
-    this.input = input;
+    this.args = args;
   }
 }

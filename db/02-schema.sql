@@ -14,7 +14,7 @@ create table users
 -- goal table
 create table goals
 (
-    id         serial primary key,
+    id          serial primary key,
     user_id     int         not null references users (id),
     title       text        not null,
     description text,

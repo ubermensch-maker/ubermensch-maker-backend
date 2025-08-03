@@ -52,6 +52,16 @@ public class MessageService {
     }
 
     Integer userMessageIndex = getNextMessageIndex(request.getConversationId());
+
+    // NOTE(jiyoung): automatically find the previous message as parent if null
+    if (parentMessage == null && userMessageIndex > 0) {
+      parentMessage =
+          messageRepository
+              .findTopByConversationIdAndIndexLessThanOrderByIndexDesc(
+                  request.getConversationId(), userMessageIndex)
+              .orElse(null);
+    }
+
     Message inputMessage =
         Message.create(
             user,
