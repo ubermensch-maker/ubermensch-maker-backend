@@ -5,4 +5,4 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 jwt:
-  expiration-ms: 3600000 # 1h
+  expiration-ms: 604800000 # 7d
