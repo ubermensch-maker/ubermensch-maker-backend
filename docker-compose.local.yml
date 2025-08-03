@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  db:
+    env_file:
+      - .env.local
+
+  api:
+    env_file:
+      - .env.local
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
