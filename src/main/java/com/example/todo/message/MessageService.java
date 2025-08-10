@@ -16,6 +16,8 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,8 +32,6 @@ public class MessageService {
   private final OpenAIService openAIService;
   private final ConversationService conversationService;
 
-  // TODO(jiyoung): add history
-  // TODO(jiyoung): add system prompt
   @Transactional
   public MessageDto create(Long userId, MessageCreateDto request) {
     User user =
@@ -82,8 +82,16 @@ public class MessageService {
             request.getContent());
     messageRepository.save(inputMessage);
 
-    MessageDto inputMessageDto = MessageDto.from(inputMessage);
-    String outputMessageText = openAIService.chatCompletion(inputMessageDto, request.getModel());
+    int contextLimit = 10;
+    Pageable pageable = PageRequest.of(0, contextLimit);
+    List<Message> recentMessages = messageRepository.findByConversationIdOrderByIndexDesc(conversation.getId(), pageable);
+    
+    List<MessageDto> contextMessages = recentMessages.stream()
+        .sorted((m1, m2) -> m1.getIndex().compareTo(m2.getIndex()))
+        .map(MessageDto::from)
+        .toList();
+
+    String outputMessageText = openAIService.chatCompletion(contextMessages, request.getModel());
 
     Message outputMessage =
         Message.create(
@@ -97,6 +105,7 @@ public class MessageService {
     messageRepository.save(outputMessage);
 
     if (messageIndex == 0 || isNewConversation) {
+      MessageDto inputMessageDto = MessageDto.from(inputMessage);
       String conversationTitle = generateConversationTitle(inputMessageDto, outputMessageText);
       conversationService.updateTitle(conversation.getId(), conversationTitle);
       conversation.update(conversationTitle);
@@ -152,7 +161,6 @@ public class MessageService {
   }
 
   private String generateConversationTitle(MessageDto inputMessage, String outputMessage) {
-    // Extract text from input message
     String inputText =
         inputMessage.getContent().stream()
             .filter(content -> content instanceof TextContentDto)
@@ -160,23 +168,19 @@ public class MessageService {
             .findFirst()
             .orElse("");
 
-    // Create a prompt to generate conversation title
     String prompt =
         String.format(
-            "Based on this conversation, generate a concise title (max 50 characters):\n"
+            "Generate a short title that summarizes the main topic (max 50 characters):\n"
                 + "User: %s\n"
                 + "Assistant: %s\n\n"
                 + "Title:",
             inputText,
             outputMessage.length() > 200 ? outputMessage.substring(0, 200) + "..." : outputMessage);
 
-    // Use OpenAI directly with a simple text prompt
     String title = openAIService.generateTitle(prompt);
 
-    // Clean up the title - remove quotes if present and trim
     title = title.replaceAll("^\"|\"$", "").trim();
 
-    // Ensure title is not too long
     if (title.length() > 50) {
       title = title.substring(0, 47) + "...";
     }

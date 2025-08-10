@@ -14,27 +14,35 @@ import org.springframework.stereotype.Service;
 public class OpenAIService {
   private final OpenAIClient client;
 
-  public String chatCompletion(MessageDto message, String model) {
+  public String chatCompletion(List<MessageDto> messages, String model) {
     try {
-      List<ContentDto> contents = message.getContent();
-
       ChatCompletionCreateParams.Builder paramsBuilder =
           ChatCompletionCreateParams.builder().model(model);
 
-      for (ContentDto content : contents) {
-        if (content instanceof TextContentDto) {
-          TextContentDto textContent = (TextContentDto) content;
-          paramsBuilder.addUserMessage(textContent.getText());
+      for (MessageDto message : messages) {
+        String role = message.getRole().toString().toLowerCase();
+        List<ContentDto> contents = message.getContent();
+        
+        for (ContentDto content : contents) {
+          if (content instanceof TextContentDto) {
+            TextContentDto textContent = (TextContentDto) content;
+            String text = textContent.getText();
+            
+            if ("user".equals(role)) {
+              paramsBuilder.addUserMessage(text);
+            } else if ("assistant".equals(role)) {
+              paramsBuilder.addAssistantMessage(text);
+            } else if ("system".equals(role)) {
+              paramsBuilder.addSystemMessage(text);
+            }
+          }
         }
       }
 
       ChatCompletionCreateParams params = paramsBuilder.build();
-
       ChatCompletion chatCompletion = client.chat().completions().create(params);
 
-      String responseText = chatCompletion.choices().get(0).message().content().orElse("");
-
-      return responseText;
+      return chatCompletion.choices().get(0).message().content().orElse("");
     } catch (Exception e) {
       throw new RuntimeException("Failed to call OpenAI chat completion", e);
     }
