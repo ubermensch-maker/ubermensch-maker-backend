@@ -24,31 +24,38 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+    // Spring Security
     implementation 'org.springframework.security:spring-security-crypto'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-    // Google API Client for OAuth token validation
+    // External APIs
     implementation 'com.google.api-client:google-api-client:2.7.0'
+    implementation 'com.openai:openai-java:2.20.1'
     
-    // dotenv 의존성 추가
+    // Configuration
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 
+    // Database
     runtimeOnly 'org.postgresql:postgresql'
 
+    // Development
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

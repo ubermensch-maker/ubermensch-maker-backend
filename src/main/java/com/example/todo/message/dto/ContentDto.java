@@ -1,7 +1,6 @@
 package com.example.todo.message.dto;
 
 import com.example.todo.message.enums.ContentType;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
