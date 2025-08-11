@@ -4,9 +4,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Getter
-@ToString(exclude = "password")
+@ToString
 public class UserCreateDto {
   private String email;
-  private String password;
   private String name;
 }

@@ -15,7 +15,7 @@ public class UserApiTest {
 
   @Test
   void createTest() {
-    UserDto response = create(new UserCreateDto("test@gmail.com", "password", "name"));
+    UserDto response = create(new UserCreateDto("test@gmail.com", "name"));
     System.out.println("response = " + response);
   }
 
@@ -35,7 +35,7 @@ public class UserApiTest {
 
   @Test
   void updateTest() {
-    update(TEST_USER_ID, new UserUpdateDto("new email", "new password", "new name"));
+    update(TEST_USER_ID, new UserUpdateDto("new email", "new name"));
     UserDto response = read(TEST_USER_ID);
     System.out.println("response = " + response);
   }
@@ -58,7 +58,6 @@ public class UserApiTest {
   @AllArgsConstructor
   static class UserCreateDto {
     private String email;
-    private String password;
     private String name;
   }
 
@@ -66,7 +65,6 @@ public class UserApiTest {
   @AllArgsConstructor
   static class UserUpdateDto {
     private String email;
-    private String password;
     private String name;
   }
 }

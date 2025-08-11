@@ -1,5 +1,6 @@
 package com.example.todo.user;
 
+import com.example.todo.user.enums.OAuthProvider;
 import com.example.todo.user.enums.UserRole;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -26,10 +27,17 @@ public class User {
   private String email;
 
   @Column(nullable = false)
-  private String password;
-
-  @Column(nullable = false)
   private String name;
+
+  @Column(name = "picture_url")
+  private String picture;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private OAuthProvider provider;
+
+  @Column(name = "provider_id", nullable = false)
+  private String providerId;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -44,21 +52,23 @@ public class User {
   @Column(name = "deleted_at")
   private Instant deletedAt;
 
-  public static User create(String email, String password, String name, UserRole role) {
+  public static User createFromOAuth(
+      String email, String name, String picture, OAuthProvider provider, String providerId) {
     User user = new User();
     user.email = email;
-    user.password = password;
     user.name = name;
-    user.role = role;
+    user.picture = picture;
+    user.provider = provider;
+    user.providerId = providerId;
+    user.role = UserRole.USER;
     user.createdAt = Instant.now();
     user.updatedAt = user.createdAt;
     return user;
   }
 
-  public void update(String email, String password, String name) {
-    if (email != null) this.email = email;
-    if (password != null) this.password = password;
-    if (name != null) this.name = name;
+  public void updateProfile(String name) {
+    if (name != null)
+      this.name = name;
     this.updatedAt = Instant.now();
   }
 }

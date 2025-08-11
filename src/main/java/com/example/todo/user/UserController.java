@@ -18,12 +18,12 @@ public class UserController {
     return userService.read(userId);
   }
 
-  @PutMapping("/users")
-  public UserDto update(
+  @PutMapping("/users/profile")
+  public UserDto updateProfile(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
       @RequestBody UserUpdateDto request) {
     Long userId = userService.getByEmail(principal.getUsername()).getId();
-    return userService.update(userId, request);
+    return userService.updateProfile(userId, request.getName());
   }
 
   @DeleteMapping("/users")
