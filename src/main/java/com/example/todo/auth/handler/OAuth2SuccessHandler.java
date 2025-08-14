@@ -26,15 +26,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthService oAuthService;
-    private final ObjectMapper objectMapper;
     private final AuthSessionService authSessionService;
-    
+
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+            Authentication authentication) throws IOException, ServletException {
 
         log.info("OAuth2 authentication success");
 
@@ -50,15 +49,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
             // JWT 토큰 생성
             String token = jwtTokenProvider.createToken(
-                user.getEmail(),
-                authentication.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .toList()
-            );
+                    user.getEmail(),
+                    authentication.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .toList());
 
             // 임시 세션 생성
             String sessionId = authSessionService.createSession(token);
-            
+
             // 프론트엔드로 세션 ID와 함께 리다이렉트
             String redirectUrl = frontendUrl + "/auth/callback?session=" + sessionId;
             response.sendRedirect(redirectUrl);
