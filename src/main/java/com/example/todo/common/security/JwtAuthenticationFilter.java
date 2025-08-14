@@ -2,7 +2,6 @@ package com.example.todo.common.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -22,21 +21,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws ServletException, IOException {
     
+    // Authorization 헤더에서 Bearer 토큰 추출
+    String header = req.getHeader("Authorization");
     String token = null;
     
-    String header = req.getHeader("Authorization");
     if (header != null && header.startsWith("Bearer ")) {
       token = header.substring(7);
     }
     
-    if (token == null && req.getCookies() != null) {
-      for (Cookie cookie : req.getCookies()) {
-        if ("auth-token".equals(cookie.getName())) {
-          token = cookie.getValue();
-          break;
-        }
-      }
-    }
     if (token != null && jwtTokenProvider.validateToken(token)) {
       Authentication auth = jwtTokenProvider.getAuthentication(token);
       SecurityContextHolder.getContext().setAuthentication(auth);

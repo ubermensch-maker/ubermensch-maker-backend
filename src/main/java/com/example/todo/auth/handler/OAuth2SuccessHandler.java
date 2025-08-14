@@ -1,11 +1,11 @@
 package com.example.todo.auth.handler;
 
 import com.example.todo.auth.OAuthService;
+import com.example.todo.auth.service.AuthSessionService;
 import com.example.todo.common.security.JwtTokenProvider;
 import com.example.todo.user.dto.UserDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthService oAuthService;
     private final ObjectMapper objectMapper;
+    private final AuthSessionService authSessionService;
     
     @Value("${app.frontend-url}")
     private String frontendUrl;
@@ -55,17 +56,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     .toList()
             );
 
-            // HttpOnly 쿠키로 토큰 설정 (보안 표준)
-            Cookie tokenCookie = new Cookie("auth-token", token);
-            tokenCookie.setHttpOnly(true);  // XSS 공격 방지
-            tokenCookie.setSecure(request.isSecure()); // HTTPS면 true, HTTP면 false
-            tokenCookie.setPath("/");
-            tokenCookie.setMaxAge(86400); // 24시간
-            response.addCookie(tokenCookie);
-
-            // 프론트엔드로 리다이렉트
-            response.sendRedirect(frontendUrl);
-            log.info("OAuth success - redirecting to: {}", frontendUrl);
+            // 임시 세션 생성
+            String sessionId = authSessionService.createSession(token);
+            
+            // 프론트엔드로 세션 ID와 함께 리다이렉트
+            String redirectUrl = frontendUrl + "/auth/callback?session=" + sessionId;
+            response.sendRedirect(redirectUrl);
+            log.info("OAuth success - redirecting to: {} with session: {}", redirectUrl, sessionId);
 
         } catch (Exception e) {
             log.error("Error processing OAuth success", e);
