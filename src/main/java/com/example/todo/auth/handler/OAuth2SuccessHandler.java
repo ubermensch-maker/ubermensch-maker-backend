@@ -10,8 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -19,7 +18,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -29,6 +27,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthService oAuthService;
     private final ObjectMapper objectMapper;
+    
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -62,23 +63,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             tokenCookie.setMaxAge(86400); // 24시간
             response.addCookie(tokenCookie);
 
-            // API 응답으로 성공 여부와 사용자 정보 반환
-            response.setStatus(HttpStatus.OK.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding("UTF-8");
-
-            Map<String, Object> successResponse = Map.of(
-                "success", true,
-                "message", "로그인 성공",
-                "user", Map.of(
-                    "id", user.getId(),
-                    "name", user.getName(),
-                    "email", user.getEmail()
-                )
-            );
-
-            objectMapper.writeValue(response.getWriter(), successResponse);
-            log.info("OAuth success response sent");
+            // 프론트엔드로 리다이렉트
+            response.sendRedirect(frontendUrl);
+            log.info("OAuth success - redirecting to: {}", frontendUrl);
 
         } catch (Exception e) {
             log.error("Error processing OAuth success", e);
@@ -87,16 +74,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-
-        Map<String, Object> errorResponse = Map.of(
-            "success", false,
-            "error", message,
-            "timestamp", System.currentTimeMillis()
-        );
-
-        objectMapper.writeValue(response.getWriter(), errorResponse);
+        // 에러 발생시 프론트엔드 에러 페이지로 리다이렉트 (에러 메시지 노출 안함)
+        String errorUrl = frontendUrl + "/auth/error";
+        response.sendRedirect(errorUrl);
+        log.error("OAuth error - redirecting to error page: {}, error: {}", errorUrl, message);
     }
 }

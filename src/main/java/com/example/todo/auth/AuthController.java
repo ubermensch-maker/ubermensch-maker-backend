@@ -1,6 +1,8 @@
 package com.example.todo.auth;
 
 import com.example.todo.common.security.JwtTokenProvider;
+import com.example.todo.user.UserService;
+import com.example.todo.user.dto.UserDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class AuthController {
   
   private final JwtTokenProvider jwtTokenProvider;
+  private final UserService userService;
 
 
   @GetMapping("/api/auth/me")
@@ -45,9 +48,17 @@ public class AuthController {
       }
 
       String email = jwtTokenProvider.getEmail(token);
+      
+      // 사용자 정보 조회
+      UserDto user = userService.getByEmail(email);
+      
       return ResponseEntity.ok(Map.of(
         "authenticated", true,
-        "email", email
+        "user", Map.of(
+          "id", user.getId(),
+          "name", user.getName(),
+          "email", user.getEmail()
+        )
       ));
 
     } catch (Exception e) {
