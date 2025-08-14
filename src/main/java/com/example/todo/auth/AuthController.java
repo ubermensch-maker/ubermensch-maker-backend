@@ -1,48 +1,75 @@
 package com.example.todo.auth;
 
-import com.example.todo.auth.dto.LoginRequest;
-import com.example.todo.auth.dto.LoginResponse;
-import com.example.todo.auth.dto.SignupRequest;
 import com.example.todo.common.security.JwtTokenProvider;
-import com.example.todo.user.UserService;
-import com.example.todo.user.dto.UserDto;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-  private final AuthenticationManager authenticationManager;
+  
   private final JwtTokenProvider jwtTokenProvider;
-  private final UserService userService;
 
-  @PostMapping("/auth/signup")
-  public ResponseEntity<UserDto> signup(@RequestBody SignupRequest request) {
-    UserDto user = userService.create(request);
 
-    return ResponseEntity.ok(user);
+  @GetMapping("/api/auth/me")
+  public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+    try {
+      Cookie[] cookies = request.getCookies();
+      if (cookies == null) {
+        return ResponseEntity.status(401).body(Map.of("error", "No authentication cookies found"));
+      }
+
+      String token = null;
+
+      for (Cookie cookie : cookies) {
+        if ("auth-token".equals(cookie.getName())) {
+          token = cookie.getValue();
+          break;
+        }
+      }
+
+      if (token == null) {
+        return ResponseEntity.status(401).body(Map.of("error", "Authentication token not found"));
+      }
+
+      if (!jwtTokenProvider.validateToken(token)) {
+        return ResponseEntity.status(401).body(Map.of("error", "Invalid authentication token"));
+      }
+
+      String email = jwtTokenProvider.getEmail(token);
+      return ResponseEntity.ok(Map.of(
+        "authenticated", true,
+        "email", email
+      ));
+
+    } catch (Exception e) {
+      log.error("Error checking authentication status", e);
+      return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
+    }
   }
 
-  @PostMapping("/auth/login")
-  public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-    Authentication auth =
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+  @PostMapping("/api/auth/logout")
+  public ResponseEntity<?> logout(HttpServletResponse response) {
+    try {
+      Cookie tokenCookie = new Cookie("auth-token", "");
+      tokenCookie.setHttpOnly(true);
+      tokenCookie.setSecure(false);
+      tokenCookie.setPath("/");
+      tokenCookie.setMaxAge(0);
+      response.addCookie(tokenCookie);
 
-    String token =
-        jwtTokenProvider.createToken(
-            request.email(),
-            auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
-
-    UserDto user = userService.getByEmail(request.email());
-
-    return ResponseEntity.ok(new LoginResponse(token, user));
+      return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
+    } catch (Exception e) {
+      log.error("Error during logout", e);
+      return ResponseEntity.status(500).body(Map.of("error", "Logout failed"));
+    }
   }
 }

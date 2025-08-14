@@ -2,6 +2,7 @@ package com.example.todo.common.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,14 +21,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws ServletException, IOException {
+    
+    String token = null;
+    
     String header = req.getHeader("Authorization");
     if (header != null && header.startsWith("Bearer ")) {
-      String token = header.substring(7);
-      if (jwtTokenProvider.validateToken(token)) {
-        Authentication auth = jwtTokenProvider.getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+      token = header.substring(7);
+    }
+    
+    if (token == null && req.getCookies() != null) {
+      for (Cookie cookie : req.getCookies()) {
+        if ("auth-token".equals(cookie.getName())) {
+          token = cookie.getValue();
+          break;
+        }
       }
     }
+    if (token != null && jwtTokenProvider.validateToken(token)) {
+      Authentication auth = jwtTokenProvider.getAuthentication(token);
+      SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+    
     chain.doFilter(req, res);
   }
 }
