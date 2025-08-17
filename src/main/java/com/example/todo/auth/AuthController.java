@@ -24,7 +24,7 @@ public class AuthController {
   private final AuthSessionService authSessionService;
 
 
-  @GetMapping("/api/auth/session/{sessionId}")
+  @GetMapping("/auth/session/{sessionId}")
   public ResponseEntity<?> exchangeSession(@PathVariable String sessionId) {
     try {
       String token = authSessionService.getTokenAndRemove(sessionId);
@@ -55,7 +55,7 @@ public class AuthController {
     }
   }
   
-  @GetMapping("/api/auth/me")
+  @GetMapping("/auth/me")
   public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
     try {
       // Authorization 헤더에서 Bearer 토큰 추출
@@ -93,7 +93,7 @@ public class AuthController {
     }
   }
 
-  @PostMapping("/api/auth/logout")
+  @PostMapping("/auth/logout")
   public ResponseEntity<?> logout(HttpServletResponse response) {
     // Bearer 토큰 방식에서는 클라이언트가 토큰을 삭제하면 됨
     return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
