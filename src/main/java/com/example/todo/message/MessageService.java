@@ -106,7 +106,7 @@ public class MessageService {
             .map(MessageDto::from)
             .toList();
 
-    ChatCompletion chatCompletion = openAIService.chatCompletionWithTools(contextMessages, request.getModel());
+    ChatCompletion chatCompletion = openAIService.chatCompletionWithTools(contextMessages, request.getModel(), user, inputMessage);
     
     List<ToolContentDto> toolContents = new ArrayList<>();
     List<ToolCall> toolCalls = new ArrayList<>();
@@ -189,7 +189,7 @@ public class MessageService {
 
     if (messageIndex == 0 || isNewConversation) {
       MessageDto inputMessageDto = MessageDto.from(inputMessage);
-      String conversationTitle = generateConversationTitle(inputMessageDto, outputMessageText);
+      String conversationTitle = generateConversationTitle(inputMessageDto, outputMessageText, user, outputMessage);
       conversationService.updateTitle(conversation.getId(), conversationTitle);
       conversation.update(conversationTitle);
     }
@@ -243,7 +243,7 @@ public class MessageService {
         .orElse(0);
   }
 
-  private String generateConversationTitle(MessageDto inputMessage, String outputMessage) {
+  private String generateConversationTitle(MessageDto inputMessage, String outputMessage, User user, Message message) {
     String inputText =
         inputMessage.getContent().stream()
             .filter(content -> content instanceof TextContentDto)
@@ -266,7 +266,7 @@ public class MessageService {
     systemMessage.setContent(List.of(new TextContentDto(prompt)));
 
     List<MessageDto> messages = List.of(systemMessage);
-    String title = openAIService.chatCompletion(messages, Model.GPT_4_1_NANO);
+    String title = openAIService.chatCompletion(messages, Model.GPT_4_1_NANO, user, message);
 
     title = title.replaceAll("^\"|\"$", "").trim();
 

@@ -128,3 +128,19 @@ create table tool_calls
     updated_at          timestamptz not null default now(),
     deleted_at          timestamptz
 );
+
+-- token usage table
+create table token_usage
+(
+    id                uuid default uuid_generate_v7() primary key,
+    user_id           int         not null references users (id),
+    message_id        uuid        references chat_messages (id),
+    model             text        not null,
+    prompt_tokens     int         not null,
+    completion_tokens int         not null,
+    total_tokens      int         not null,
+    request_type      text,
+    created_at        timestamptz not null default now(),
+    updated_at        timestamptz not null default now(),
+    deleted_at        timestamptz
+);
