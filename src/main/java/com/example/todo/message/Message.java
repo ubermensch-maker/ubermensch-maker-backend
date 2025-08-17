@@ -4,6 +4,7 @@ import com.example.todo.conversation.Conversation;
 import com.example.todo.message.dto.ContentDto;
 import com.example.todo.message.enums.MessageRole;
 import com.example.todo.message.enums.Model;
+import com.example.todo.message.enums.ModelConverter;
 import com.example.todo.user.User;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -54,6 +55,7 @@ public class Message {
   private MessageRole role;
 
   @Column(nullable = false)
+  @Convert(converter = ModelConverter.class)
   private Model model;
 
   @JdbcTypeCode(SqlTypes.JSON)

@@ -18,7 +18,7 @@ public class OpenAIService {
   public String chatCompletion(List<MessageDto> messages, Model model) {
     try {
       ChatCompletionCreateParams.Builder paramsBuilder =
-          ChatCompletionCreateParams.builder().model(model.name());
+          ChatCompletionCreateParams.builder().model(model.getValue());
 
       for (MessageDto message : messages) {
         String role = message.getRole().toString().toLowerCase();
