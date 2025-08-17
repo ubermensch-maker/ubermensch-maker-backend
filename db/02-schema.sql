@@ -99,3 +99,32 @@ create table memories
     updated_at timestamptz not null default now(),
     deleted_at timestamptz
 );
+
+-- system prompt table
+create table system_prompts
+(
+    id         uuid default uuid_generate_v7() primary key,
+    name       text        not null,
+    prompt     text        not null,
+    version    int         not null default 1,
+    metadata   jsonb,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    deleted_at timestamptz
+);
+
+-- tool call table
+create table tool_calls
+(
+    id                  uuid default uuid_generate_v7() primary key,
+    user_id             int         not null references users (id),
+    message_id          uuid        not null references chat_messages (id),
+    function_name       text        not null,
+    arguments           jsonb       not null,
+    result              jsonb,
+    status              text        not null check ( status in ('PENDING', 'ACCEPTED', 'REJECTED') ),
+    openai_tool_call_id text,
+    created_at          timestamptz not null default now(),
+    updated_at          timestamptz not null default now(),
+    deleted_at          timestamptz
+);

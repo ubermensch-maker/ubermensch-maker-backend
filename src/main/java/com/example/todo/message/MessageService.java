@@ -8,13 +8,23 @@ import com.example.todo.message.dto.MessageCreateDto;
 import com.example.todo.message.dto.MessageDto;
 import com.example.todo.message.dto.MessageListDto;
 import com.example.todo.message.dto.TextContentDto;
+import com.example.todo.message.dto.ToolContentDto;
+import com.example.todo.message.dto.ContentDto;
 import com.example.todo.message.enums.MessageRole;
 import com.example.todo.message.enums.Model;
 import com.example.todo.openai.OpenAIService;
+import com.example.todo.toolcall.ToolCall;
+import com.example.todo.toolcall.ToolCallRepository;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionMessageToolCall;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +42,8 @@ public class MessageService {
   private final ConversationRepository conversationRepository;
   private final OpenAIService openAIService;
   private final ConversationService conversationService;
+  private final ToolCallRepository toolCallRepository;
+  private final ObjectMapper objectMapper;
 
   @Transactional
   public MessageDto create(Long userId, MessageCreateDto request) {
@@ -94,7 +106,51 @@ public class MessageService {
             .map(MessageDto::from)
             .toList();
 
-    String outputMessageText = openAIService.chatCompletion(contextMessages, request.getModel());
+    ChatCompletion chatCompletion = openAIService.chatCompletionWithTools(contextMessages, request.getModel());
+    
+    List<ToolContentDto> toolContents = new ArrayList<>();
+    List<ToolCall> toolCalls = new ArrayList<>();
+    
+    for (ChatCompletion.Choice choice : chatCompletion.choices()) {
+      if (choice.message().toolCalls().isPresent()) {
+        for (ChatCompletionMessageToolCall toolCall : choice.message().toolCalls().get()) {
+          Map<String, Object> arguments;
+          try {
+            // arguments() 결과를 안전하게 Map으로 변환
+            String argumentsJson = toolCall.function().arguments().toString();
+            arguments = objectMapper.readValue(argumentsJson, new TypeReference<Map<String, Object>>() {});
+          } catch (Exception e) {
+            throw new RuntimeException("Failed to parse tool call arguments: " + e.getMessage(), e);
+          }
+          
+          ToolCall toolCallEntity = ToolCall.create(
+              user,
+              null, // will set after message is saved
+              toolCall.function().name(),
+              arguments,
+              toolCall.id()
+          );
+          toolCalls.add(toolCallEntity);
+          
+          ToolContentDto toolContent = new ToolContentDto(
+              toolCall.function().name(),
+              arguments,
+              null, // will set after toolCall is saved
+              toolCallEntity.getStatus(),
+              toolCall.id()
+          );
+          toolContents.add(toolContent);
+        }
+      }
+    }
+    
+    String outputMessageText = chatCompletion.choices().get(0).message().content().orElse("");
+    List<ContentDto> outputContents = new ArrayList<>();
+    
+    if (!outputMessageText.isEmpty()) {
+      outputContents.add(new TextContentDto(outputMessageText));
+    }
+    outputContents.addAll(toolContents);
 
     Message outputMessage =
         Message.create(
@@ -104,8 +160,32 @@ public class MessageService {
             messageIndex + 1,
             request.getModel(),
             MessageRole.ASSISTANT,
-            List.of(new TextContentDto(outputMessageText)));
+            outputContents);
     messageRepository.save(outputMessage);
+    
+    // Update tool calls with message reference and save
+    for (int i = 0; i < toolCalls.size(); i++) {
+      ToolCall toolCall = toolCalls.get(i);
+      toolCall = ToolCall.create(
+          user,
+          outputMessage,
+          toolCall.getFunctionName(),
+          toolCall.getArguments(),
+          toolCall.getOpenaiToolCallId()
+      );
+      toolCallRepository.save(toolCall);
+      
+      // Update tool content with saved tool call ID
+      ToolContentDto originalToolContent = toolContents.get(i);
+      ToolContentDto updatedToolContent = new ToolContentDto(
+          originalToolContent.getName(),
+          originalToolContent.getArgs(),
+          toolCall.getId(),
+          toolCall.getStatus(),
+          originalToolContent.getOpenaiToolCallId()
+      );
+      outputContents.set(outputContents.indexOf(originalToolContent), updatedToolContent);
+    }
 
     if (messageIndex == 0 || isNewConversation) {
       MessageDto inputMessageDto = MessageDto.from(inputMessage);
