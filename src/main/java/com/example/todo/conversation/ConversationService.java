@@ -102,4 +102,15 @@ public class ConversationService {
     messageRepository.deleteAllByConversationId(conversationId);
     conversationRepository.delete(conversation);
   }
+
+  @Transactional
+  public void updateTitle(UUID conversationId, String title) {
+    Conversation conversation =
+        conversationRepository
+            .findById(conversationId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation not found"));
+    
+    conversation.update(title);
+  }
 }

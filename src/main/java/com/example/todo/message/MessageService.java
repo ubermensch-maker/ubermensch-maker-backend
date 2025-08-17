@@ -2,19 +2,23 @@ package com.example.todo.message;
 
 import com.example.todo.conversation.Conversation;
 import com.example.todo.conversation.ConversationRepository;
+import com.example.todo.conversation.ConversationService;
+import com.example.todo.conversation.dto.ConversationDto;
 import com.example.todo.message.dto.MessageCreateDto;
 import com.example.todo.message.dto.MessageDto;
 import com.example.todo.message.dto.MessageListDto;
 import com.example.todo.message.dto.TextContentDto;
-import com.example.todo.message.dto.ToolContentDto;
 import com.example.todo.message.enums.MessageRole;
+import com.example.todo.message.enums.Model;
+import com.example.todo.openai.OpenAIService;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,8 @@ public class MessageService {
   private final MessageRepository messageRepository;
   private final UserRepository userRepository;
   private final ConversationRepository conversationRepository;
+  private final OpenAIService openAIService;
+  private final ConversationService conversationService;
 
   @Transactional
   public MessageDto create(Long userId, MessageCreateDto request) {
@@ -34,11 +40,16 @@ public class MessageService {
             .findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
+    boolean isNewConversation = request.getConversationId() == null;
     Conversation conversation =
-        conversationRepository
-            .findById(request.getConversationId())
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation not found"));
+        isNewConversation
+            ? conversationRepository.save(Conversation.create(user, "New Chat"))
+            : conversationRepository
+                .findById(request.getConversationId())
+                .orElseThrow(
+                    () ->
+                        new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "Conversation not found"));
 
     Message parentMessage = null;
     if (request.getParentMessageId() != null) {
@@ -51,14 +62,13 @@ public class MessageService {
                           HttpStatus.NOT_FOUND, "Parent message not found"));
     }
 
-    Integer userMessageIndex = getNextMessageIndex(request.getConversationId());
+    Integer messageIndex = getNextMessageIndex(conversation.getId());
 
-    // NOTE(jiyoung): automatically find the previous message as parent if null
-    if (parentMessage == null && userMessageIndex > 0) {
+    if (parentMessage == null && messageIndex > 0) {
       parentMessage =
           messageRepository
               .findTopByConversationIdAndIndexLessThanOrderByIndexDesc(
-                  request.getConversationId(), userMessageIndex)
+                  conversation.getId(), messageIndex)
               .orElse(null);
     }
 
@@ -67,33 +77,47 @@ public class MessageService {
             user,
             conversation,
             parentMessage,
-            userMessageIndex,
+            messageIndex,
             request.getModel(),
             request.getRole(),
             request.getContent());
     messageRepository.save(inputMessage);
 
-    // TODO(jiyoung): replace with actual assistant response
-    Integer assistantMessageIndex = getNextMessageIndex(request.getConversationId());
+    int contextLimit = 10;
+    Pageable pageable = PageRequest.of(0, contextLimit);
+    List<Message> recentMessages = messageRepository.findByConversationIdOrderByIndexDesc(conversation.getId(), pageable);
+    
+    List<MessageDto> contextMessages = recentMessages.stream()
+        .sorted((m1, m2) -> m1.getIndex().compareTo(m2.getIndex()))
+        .map(MessageDto::from)
+        .toList();
+
+    String outputMessageText = openAIService.chatCompletion(contextMessages, request.getModel());
+
     Message outputMessage =
         Message.create(
             null,
             conversation,
             inputMessage,
-            assistantMessageIndex,
+            messageIndex + 1,
             request.getModel(),
             MessageRole.ASSISTANT,
-            List.of(
-                new TextContentDto(
-                    "I can create that goal for you. Please review the details and confirm."),
-                new ToolContentDto(
-                    "create_goal",
-                    Map.of(
-                        "title", "Learn Next.js",
-                        "description", "Become proficient with the latest features of Next.js"))));
+            List.of(new TextContentDto(outputMessageText)));
     messageRepository.save(outputMessage);
 
-    return MessageDto.from(outputMessage);
+    if (messageIndex == 0 || isNewConversation) {
+      MessageDto inputMessageDto = MessageDto.from(inputMessage);
+      String conversationTitle = generateConversationTitle(inputMessageDto, outputMessageText);
+      conversationService.updateTitle(conversation.getId(), conversationTitle);
+      conversation.update(conversationTitle);
+    }
+
+    MessageDto responseDto = MessageDto.from(outputMessage);
+    if (isNewConversation) {
+      responseDto.setConversation(ConversationDto.from(conversation));
+    }
+
+    return responseDto;
   }
 
   public MessageDto read(Long userId, UUID messageId) {
@@ -135,6 +159,39 @@ public class MessageService {
         .findTopByConversationIdOrderByIndexDesc(conversationId)
         .map(message -> message.getIndex() + 1)
         .orElse(0);
+  }
+
+  private String generateConversationTitle(MessageDto inputMessage, String outputMessage) {
+    String inputText =
+        inputMessage.getContent().stream()
+            .filter(content -> content instanceof TextContentDto)
+            .map(content -> ((TextContentDto) content).getText())
+            .findFirst()
+            .orElse("");
+
+    String prompt =
+        String.format(
+            "Generate a short title that summarizes the main topic (max 50 characters):\n"
+                + "User: %s\n"
+                + "Assistant: %s\n\n"
+                + "Title:",
+            inputText,
+            outputMessage.length() > 200 ? outputMessage.substring(0, 200) + "..." : outputMessage);
+
+    MessageDto systemMessage = new MessageDto();
+    systemMessage.setRole(MessageRole.SYSTEM);
+    systemMessage.setContent(List.of(new TextContentDto(prompt)));
+    
+    List<MessageDto> messages = List.of(systemMessage);
+    String title = openAIService.chatCompletion(messages, Model.GPT_4_1_NANO);
+
+    title = title.replaceAll("^\"|\"$", "").trim();
+
+    if (title.length() > 50) {
+      title = title.substring(0, 47) + "...";
+    }
+
+    return title;
   }
 
   @Transactional
