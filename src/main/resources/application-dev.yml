@@ -10,9 +10,24 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: http://34.22.96.109/login/oauth2/code/google
+            scope:
+              - openid
+              - profile
+              - email
 
 jwt:
   secret: ${JWT_SECRET}
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
 
 openai:
   base-url: https://api.openai.com/v1
