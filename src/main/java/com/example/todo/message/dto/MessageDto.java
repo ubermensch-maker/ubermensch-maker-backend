@@ -3,6 +3,8 @@ package com.example.todo.message.dto;
 import com.example.todo.conversation.dto.ConversationDto;
 import com.example.todo.message.Message;
 import com.example.todo.message.enums.MessageRole;
+import com.example.todo.message.enums.Model;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +21,7 @@ public class MessageDto {
   private UUID conversationId;
   private UUID parentMessageId;
   private Integer index;
-  private String model;
+  private Model model;
   private MessageRole role;
   private List<ContentDto> content;
   private Instant createdAt;

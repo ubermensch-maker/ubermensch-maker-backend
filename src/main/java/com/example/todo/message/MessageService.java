@@ -9,6 +9,7 @@ import com.example.todo.message.dto.MessageDto;
 import com.example.todo.message.dto.MessageListDto;
 import com.example.todo.message.dto.TextContentDto;
 import com.example.todo.message.enums.MessageRole;
+import com.example.todo.message.enums.Model;
 import com.example.todo.openai.OpenAIService;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
@@ -177,7 +178,12 @@ public class MessageService {
             inputText,
             outputMessage.length() > 200 ? outputMessage.substring(0, 200) + "..." : outputMessage);
 
-    String title = openAIService.generateTitle(prompt);
+    MessageDto systemMessage = new MessageDto();
+    systemMessage.setRole(MessageRole.SYSTEM);
+    systemMessage.setContent(List.of(new TextContentDto(prompt)));
+    
+    List<MessageDto> messages = List.of(systemMessage);
+    String title = openAIService.chatCompletion(messages, Model.GPT_4_1_NANO);
 
     title = title.replaceAll("^\"|\"$", "").trim();
 

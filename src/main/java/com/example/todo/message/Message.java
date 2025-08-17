@@ -3,6 +3,7 @@ package com.example.todo.message;
 import com.example.todo.conversation.Conversation;
 import com.example.todo.message.dto.ContentDto;
 import com.example.todo.message.enums.MessageRole;
+import com.example.todo.message.enums.Model;
 import com.example.todo.user.User;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -53,7 +54,7 @@ public class Message {
   private MessageRole role;
 
   @Column(nullable = false)
-  private String model;
+  private Model model;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb")
@@ -73,7 +74,7 @@ public class Message {
       Conversation conversation,
       @Nullable Message parentMessage,
       Integer index,
-      String model,
+      Model model,
       MessageRole role,
       List<ContentDto> content) {
     Message message = new Message();
