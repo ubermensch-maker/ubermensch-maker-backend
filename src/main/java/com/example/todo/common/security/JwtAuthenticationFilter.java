@@ -20,14 +20,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws ServletException, IOException {
+    
+    // Authorization 헤더에서 Bearer 토큰 추출
     String header = req.getHeader("Authorization");
+    String token = null;
+    
     if (header != null && header.startsWith("Bearer ")) {
-      String token = header.substring(7);
-      if (jwtTokenProvider.validateToken(token)) {
-        Authentication auth = jwtTokenProvider.getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-      }
+      token = header.substring(7);
     }
+    
+    if (token != null && jwtTokenProvider.validateToken(token)) {
+      Authentication auth = jwtTokenProvider.getAuthentication(token);
+      SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+    
     chain.doFilter(req, res);
   }
 }

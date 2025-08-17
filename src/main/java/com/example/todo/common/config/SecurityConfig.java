@@ -1,54 +1,55 @@
 package com.example.todo.common.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.example.todo.auth.handler.OAuth2FailureHandler;
+import com.example.todo.auth.handler.OAuth2SuccessHandler;
 import com.example.todo.common.security.JwtAuthenticationFilter;
 import com.example.todo.common.security.JwtTokenProvider;
-import com.example.todo.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
   private final JwtTokenProvider jwtTokenProvider;
-  private final UserService userService;
+  private final UrlBasedCorsConfigurationSource corsConfigurationSource;
+  private final OAuth2SuccessHandler oAuth2SuccessHandler;
+  private final OAuth2FailureHandler oAuth2FailureHandler;
 
-  public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserService userService) {
+  public SecurityConfig(JwtTokenProvider jwtTokenProvider, 
+                        UrlBasedCorsConfigurationSource corsConfigurationSource,
+                        OAuth2SuccessHandler oAuth2SuccessHandler,
+                        OAuth2FailureHandler oAuth2FailureHandler) {
     this.jwtTokenProvider = jwtTokenProvider;
-    this.userService = userService;
+    this.corsConfigurationSource = corsConfigurationSource;
+    this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+    this.oAuth2FailureHandler = oAuth2FailureHandler;
   }
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.cors(withDefaults())
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource))
         .csrf(csrf -> csrf.disable())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/auth/**", "/health")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
-        .userDetailsService(userService)
+        .authorizeHttpRequests(auth ->
+            auth.requestMatchers("/health", "/oauth2/**", "/login/oauth2/**", "/auth/session/**", "/auth/logout")
+                .permitAll()
+                .anyRequest()
+                .authenticated())
+        .oauth2Login(oauth2 -> oauth2
+            .successHandler(oAuth2SuccessHandler)
+            .failureHandler(oAuth2FailureHandler))
         .addFilterBefore(
             new JwtAuthenticationFilter(jwtTokenProvider),
             UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
-  }
-
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-      throws Exception {
-    return config.getAuthenticationManager();
   }
 }
