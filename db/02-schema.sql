@@ -3,12 +3,11 @@ create table users
 (
     id                serial primary key,
     email             text        not null unique,
-    password          text,
     name              text        not null,
     role              text        not null check ( role in ('USER', 'ADMIN') ),
     picture           text,
-    oauth_provider    text check ( oauth_provider in ('GOOGLE', 'GITHUB', 'KAKAO') ),
-    oauth_provider_id text,
+    oauth_provider    text        not null check ( oauth_provider in ('GOOGLE') ),
+    oauth_provider_id text        not null,
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
     deleted_at        timestamptz
