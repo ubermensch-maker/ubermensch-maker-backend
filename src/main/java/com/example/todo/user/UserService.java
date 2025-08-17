@@ -43,6 +43,7 @@ public class UserService {
     return UserDto.from(user);
   }
 
+  @Transactional
   public UserDto createFromOAuth(String email, String name, String picture, OAuthProvider provider, String providerId) {
     if (findByEmail(email).isPresent()) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
