@@ -73,6 +73,10 @@ public class JwtTokenProvider {
             .get("roles");
   }
 
+  public long getValidityInMs() {
+    return validityInMs;
+  }
+
   public boolean validateToken(String token) {
     try {
       Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);

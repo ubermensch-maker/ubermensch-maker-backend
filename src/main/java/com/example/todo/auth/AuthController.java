@@ -47,7 +47,7 @@ public class AuthController {
               "token_type",
               "Bearer",
               "expires_in",
-              86400, // 24시간
+              jwtTokenProvider.getValidityInMs() / 1000, // 실제 설정값을 초 단위로
               "user",
               Map.of(
                   "id", user.getId(),
@@ -133,7 +133,7 @@ public class AuthController {
               "token_type",
               "Bearer",
               "expires_in",
-              86400, // 24시간
+              jwtTokenProvider.getValidityInMs() / 1000, // 실제 설정값을 초 단위로
               "user",
               Map.of(
                   "id", user.getId(),
