@@ -15,18 +15,20 @@ public class UserService {
   private final UserRepository userRepository;
 
   public UserDto read(Long userId) {
-    User user = userRepository
-        .findById(userId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     return UserDto.from(user);
   }
 
   @Transactional
   public void delete(Long userId) {
-    User user = userRepository
-        .findById(userId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     userRepository.delete(user);
   }
@@ -36,15 +38,17 @@ public class UserService {
   }
 
   public UserDto getByEmail(String email) {
-    User user = userRepository
-        .findByEmail(email)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    User user =
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     return UserDto.from(user);
   }
 
   @Transactional
-  public UserDto createFromOAuth(String email, String name, String picture, OAuthProvider provider, String providerId) {
+  public UserDto createFromOAuth(
+      String email, String name, String picture, OAuthProvider provider, String providerId) {
     if (findByEmail(email).isPresent()) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
     }
@@ -56,12 +60,12 @@ public class UserService {
 
   @Transactional
   public UserDto updateProfile(Long userId, String name) {
-    User user = userRepository
-        .findById(userId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     user.updateProfile(name);
     return UserDto.from(user);
   }
-
 }

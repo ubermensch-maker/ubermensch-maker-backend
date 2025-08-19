@@ -30,30 +30,41 @@ docker-compose up --build
 
 이 프로젝트는 Java 코드 스타일 통일을 위해 [google-java-format](https://github.com/google/google-java-format)을 사용합니다.
 
-### VS Code 설정 방법
+### 방법 1: Gradle 명령어 (권장)
 
-1. 	Homebrew로 google-java-format 설치 (macOS 기준)
+Homebrew로 설치한 google-java-format 사용:
 
 ```bash
+# google-java-format 설치 (최초 1회)
 brew install google-java-format
+
+# 모든 Java 파일 포맷팅
+./gradlew format
 ```
 
-2. 실행 파일 경로 확인
+### 방법 2: VS Code 자동 포맷팅 (저장 시)
 
-```bash
-which google-java-format
-```
+파일 저장할 때마다 자동으로 포맷팅하려면:
 
-3. VS Code 확장 프로그램 google-java-format(작성자: ilkka)을 설치
+1. Homebrew로 google-java-format 설치 (macOS):
+   ```bash
+   brew install google-java-format
+   ```
 
-4. .vscode/settings.json에 아래 설정을 추가
+2. 실행 파일 경로 확인:
+   ```bash
+   which google-java-format
+   ```
 
-```json
-{
-  "[java]": {
-    "editor.defaultFormatter": "ilkka.google-java-format"
-  },
-  "google-java-format.executable-path": "/opt/homebrew/bin/google-java-format",
-  "editor.formatOnSave": true
-}
-```
+3. VS Code 확장 프로그램 `google-java-format` (작성자: ilkka) 설치
+
+4. `.vscode/settings.json`에 설정 추가:
+   ```json
+   {
+     "[java]": {
+       "editor.defaultFormatter": "ilkka.google-java-format"
+     },
+     "google-java-format.executable-path": "/opt/homebrew/bin/google-java-format",
+     "editor.formatOnSave": true
+   }
+   ```

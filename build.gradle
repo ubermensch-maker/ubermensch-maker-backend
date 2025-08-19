@@ -64,3 +64,11 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// Custom format task using brew-installed google-java-format
+tasks.register('format', Exec) {
+    commandLine 'sh', '-c', 'find src -name "*.java" -exec google-java-format --replace {} \\;'
+    doLast {
+        println '✅ All Java files have been formatted with google-java-format'
+    }
+}
