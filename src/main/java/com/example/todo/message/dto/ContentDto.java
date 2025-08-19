@@ -6,7 +6,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 
 @Getter
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = TextContentDto.class, name = "text"),
   @JsonSubTypes.Type(value = ToolContentDto.class, name = "tool")

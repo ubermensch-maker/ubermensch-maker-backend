@@ -67,8 +67,7 @@ public class User {
   }
 
   public void updateProfile(String name) {
-    if (name != null)
-      this.name = name;
+    if (name != null) this.name = name;
     this.updatedAt = Instant.now();
   }
 }

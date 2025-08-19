@@ -1,4 +1,4 @@
-package com.example.todo.auth;
+package com.example.todo.auth.service;
 
 import com.example.todo.user.UserService;
 import com.example.todo.user.dto.UserDto;

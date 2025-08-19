@@ -85,12 +85,14 @@ public class MessageService {
 
     int contextLimit = 10;
     Pageable pageable = PageRequest.of(0, contextLimit);
-    List<Message> recentMessages = messageRepository.findByConversationIdOrderByIndexDesc(conversation.getId(), pageable);
-    
-    List<MessageDto> contextMessages = recentMessages.stream()
-        .sorted((m1, m2) -> m1.getIndex().compareTo(m2.getIndex()))
-        .map(MessageDto::from)
-        .toList();
+    List<Message> recentMessages =
+        messageRepository.findByConversationIdOrderByIndexDesc(conversation.getId(), pageable);
+
+    List<MessageDto> contextMessages =
+        recentMessages.stream()
+            .sorted((m1, m2) -> m1.getIndex().compareTo(m2.getIndex()))
+            .map(MessageDto::from)
+            .toList();
 
     String outputMessageText = openAIService.chatCompletion(contextMessages, request.getModel());
 
@@ -171,7 +173,8 @@ public class MessageService {
 
     String prompt =
         String.format(
-            "Generate a short title that summarizes the main topic (max 50 characters):\n"
+            "Generate a short title that summarizes the main topic (max 50"
+                + " characters):\n"
                 + "User: %s\n"
                 + "Assistant: %s\n\n"
                 + "Title:",
@@ -181,7 +184,7 @@ public class MessageService {
     MessageDto systemMessage = new MessageDto();
     systemMessage.setRole(MessageRole.SYSTEM);
     systemMessage.setContent(List.of(new TextContentDto(prompt)));
-    
+
     List<MessageDto> messages = List.of(systemMessage);
     String title = openAIService.chatCompletion(messages, Model.GPT_4_1_NANO);
 

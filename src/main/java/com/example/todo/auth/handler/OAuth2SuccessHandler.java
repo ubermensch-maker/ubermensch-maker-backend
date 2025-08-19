@@ -1,7 +1,7 @@
 package com.example.todo.auth.handler;
 
-import com.example.todo.auth.OAuthService;
 import com.example.todo.auth.service.AuthSessionService;
+import com.example.todo.auth.service.OAuthService;
 import com.example.todo.common.security.JwtTokenProvider;
 import com.example.todo.user.dto.UserDto;
 import jakarta.servlet.ServletException;

@@ -23,12 +23,12 @@ public class OpenAIService {
       for (MessageDto message : messages) {
         String role = message.getRole().toString().toLowerCase();
         List<ContentDto> contents = message.getContent();
-        
+
         for (ContentDto content : contents) {
           if (content instanceof TextContentDto) {
             TextContentDto textContent = (TextContentDto) content;
             String text = textContent.getText();
-            
+
             if ("user".equals(role)) {
               paramsBuilder.addUserMessage(text);
             } else if ("assistant".equals(role)) {
@@ -48,5 +48,4 @@ public class OpenAIService {
       throw new RuntimeException("Failed to call OpenAI chat completion", e);
     }
   }
-
 }
