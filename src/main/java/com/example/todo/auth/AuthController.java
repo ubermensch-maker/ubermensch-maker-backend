@@ -1,11 +1,13 @@
 package com.example.todo.auth;
 
+import com.example.todo.auth.dto.DevLoginRequest;
+import com.example.todo.auth.dto.JwtResponse;
 import com.example.todo.auth.service.AuthSessionService;
 import com.example.todo.common.security.JwtTokenProvider;
 import com.example.todo.user.UserService;
 import com.example.todo.user.dto.UserDto;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -41,18 +44,7 @@ public class AuthController {
       UserDto user = userService.getByEmail(email);
 
       return ResponseEntity.ok(
-          Map.of(
-              "access_token",
-              token,
-              "token_type",
-              "Bearer",
-              "expires_in",
-              jwtTokenProvider.getValidityInMs() / 1000, // 실제 설정값을 초 단위로
-              "user",
-              Map.of(
-                  "id", user.getId(),
-                  "name", user.getName(),
-                  "email", user.getEmail())));
+          JwtResponse.of(token, jwtTokenProvider.getValidityInMs() / 1000, user));
     } catch (Exception e) {
       log.error("Error exchanging session", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -61,27 +53,11 @@ public class AuthController {
   }
 
   @GetMapping("/auth/me")
-  public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+  public ResponseEntity<?> getCurrentUser(
+      @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
     try {
-      // Authorization 헤더에서 Bearer 토큰 추출
-      String authHeader = request.getHeader("Authorization");
-
-      if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(Map.of("error", "No Bearer token found"));
-      }
-
-      String token = authHeader.substring(7);
-
-      if (!jwtTokenProvider.validateToken(token)) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(Map.of("error", "Invalid authentication token"));
-      }
-
-      String email = jwtTokenProvider.getEmail(token);
-
-      // 사용자 정보 조회
-      UserDto user = userService.getByEmail(email);
+      // Spring Security에서 인증된 사용자 정보 사용
+      UserDto user = userService.getByEmail(principal.getUsername());
 
       return ResponseEntity.ok(
           Map.of(
@@ -106,40 +82,22 @@ public class AuthController {
   }
 
   @PostMapping("/auth/dev/login")
-  public ResponseEntity<?> devLogin(@RequestBody Map<String, String> request) {
+  public ResponseEntity<?> devLogin(@Valid @RequestBody DevLoginRequest request) {
     try {
       // 개발 환경에서만 허용 (local, dev 프로파일)
       if (!environment.acceptsProfiles(Profiles.of("local", "dev"))) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(Map.of("error", "Dev login is only available in development environments"));
       }
-      
-      String email = request.get("email");
-      
-      if (email == null || email.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(Map.of("error", "Email is required"));
-      }
 
-      UserDto user = userService.getByEmail(email);
-      
+      UserDto user = userService.getByEmail(request.email());
+
       // JWT 토큰 생성
-      String token = jwtTokenProvider.createToken(email, List.of("USER"));
+      String token = jwtTokenProvider.createToken(request.email(), List.of("USER"));
 
       return ResponseEntity.ok(
-          Map.of(
-              "access_token",
-              token,
-              "token_type",
-              "Bearer",
-              "expires_in",
-              jwtTokenProvider.getValidityInMs() / 1000, // 실제 설정값을 초 단위로
-              "user",
-              Map.of(
-                  "id", user.getId(),
-                  "name", user.getName(),
-                  "email", user.getEmail())));
-                  
+          JwtResponse.of(token, jwtTokenProvider.getValidityInMs() / 1000, user));
+
     } catch (Exception e) {
       log.error("Error in dev login", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
