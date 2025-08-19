@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
-  
+
   private final UserService userService;
 
   public UserDto processOAuth2User(OAuth2User oauth2User) {
@@ -25,7 +25,8 @@ public class OAuthService {
     String providerId = oauth2User.getAttribute("sub");
 
     if (email == null || providerId == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required OAuth information missing");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Required OAuth information missing");
     }
 
     log.info("Processing OAuth2 user: email={}, name={}", email, name);
@@ -34,7 +35,8 @@ public class OAuthService {
     return getOrCreateUser(email, name, picture, OAuthProvider.GOOGLE, providerId);
   }
 
-  private UserDto getOrCreateUser(String email, String name, String picture, OAuthProvider provider, String providerId) {
+  private UserDto getOrCreateUser(
+      String email, String name, String picture, OAuthProvider provider, String providerId) {
     try {
       // 기존 사용자 조회
       return userService.getByEmail(email);
