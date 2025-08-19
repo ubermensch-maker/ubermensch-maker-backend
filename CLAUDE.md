@@ -38,10 +38,7 @@ docker-compose up --build
 ### Code Formatting
 ```bash
 # Format all Java files using Google Java Format
-./gradlew formatJava
-
-# Verify code is properly formatted
-./gradlew verifyJavaFormat
+./gradlew format
 
 # Alternative: Use CLI directly
 find src -name "*.java" -exec google-java-format --replace {} \;

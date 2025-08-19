@@ -4,7 +4,6 @@ import com.example.todo.conversation.dto.ConversationDto;
 import com.example.todo.message.Message;
 import com.example.todo.message.enums.MessageRole;
 import com.example.todo.message.enums.Model;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

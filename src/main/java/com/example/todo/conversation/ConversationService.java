@@ -110,7 +110,7 @@ public class ConversationService {
             .findById(conversationId)
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conversation not found"));
-    
+
     conversation.update(title);
   }
 }
