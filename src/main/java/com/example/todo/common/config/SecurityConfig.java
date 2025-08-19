@@ -45,7 +45,8 @@ public class SecurityConfig {
                         "/oauth2/**",
                         "/login/oauth2/**",
                         "/auth/session/**",
-                        "/auth/logout")
+                        "/auth/logout",
+                        "/auth/dev/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
