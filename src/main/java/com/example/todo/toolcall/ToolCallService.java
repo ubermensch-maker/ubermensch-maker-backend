@@ -123,4 +123,39 @@ public class ToolCallService {
     result.put("title", quest.getTitle());
     return result;
   }
+
+  public String generateToolResultMessage(ToolCall toolCall) {
+    String functionName = toolCall.getFunctionName();
+    ToolCallStatus status = toolCall.getStatus();
+    
+    if (ToolCallStatus.ACCEPTED.equals(status)) {
+      Map<String, Object> result = toolCall.getResult();
+      switch (functionName) {
+        case "CreateGoal":
+          return String.format("목표가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
+              result.get("goalId"), result.get("title"));
+        case "CreateMilestone":
+          return String.format("마일스톤이 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
+              result.get("milestoneId"), result.get("title"));
+        case "CreateQuest":
+          return String.format("퀘스트가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
+              result.get("questId"), result.get("title"));
+        default:
+          return String.format("%s 함수가 성공적으로 실행되었습니다.", functionName);
+      }
+    } else if (ToolCallStatus.REJECTED.equals(status)) {
+      switch (functionName) {
+        case "CreateGoal":
+          return "목표 생성이 사용자에 의해 거부되었습니다.";
+        case "CreateMilestone":
+          return "마일스톤 생성이 사용자에 의해 거부되었습니다.";
+        case "CreateQuest":
+          return "퀘스트 생성이 사용자에 의해 거부되었습니다.";
+        default:
+          return String.format("%s 함수 실행이 사용자에 의해 거부되었습니다.", functionName);
+      }
+    }
+    
+    return "툴 실행 상태를 확인할 수 없습니다.";
+  }
 }

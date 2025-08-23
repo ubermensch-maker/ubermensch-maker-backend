@@ -278,6 +278,105 @@ public class MessageService {
   }
 
   @Transactional
+  public MessageDto processToolResult(Long userId, ToolCall toolCall, String toolResultMessage) {
+    User user = userRepository
+        .findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+    Conversation conversation = toolCall.getMessage().getConversation();
+    Message originalMessage = toolCall.getMessage();
+    
+    // Create a message with the tool result summary
+    Integer messageIndex = getNextMessageIndex(conversation.getId());
+    Message toolResultMsg = Message.create(
+        user,
+        conversation,
+        originalMessage,
+        messageIndex,
+        Model.GPT_4_1_NANO,
+        MessageRole.USER,
+        List.of(new TextContentDto(toolResultMessage))
+    );
+    messageRepository.save(toolResultMsg);
+
+    // Get recent messages for context
+    int contextLimit = 10;
+    Pageable pageable = PageRequest.of(0, contextLimit);
+    List<Message> recentMessages =
+        messageRepository.findByConversationIdOrderByIndexDesc(conversation.getId(), pageable);
+
+    List<MessageDto> contextMessages =
+        recentMessages.stream()
+            .sorted((m1, m2) -> m1.getIndex().compareTo(m2.getIndex()))
+            .map(MessageDto::from)
+            .toList();
+
+    // Send to OpenAI with tools for response
+    ChatCompletion chatCompletion = openAIService.chatCompletionWithTools(contextMessages, Model.GPT_4_1_NANO, user, toolResultMsg);
+    
+    List<ToolContentDto> toolContents = new ArrayList<>();
+    List<ToolCall> toolCalls = new ArrayList<>();
+    
+    for (ChatCompletion.Choice choice : chatCompletion.choices()) {
+      if (choice.message().toolCalls().isPresent()) {
+        for (ChatCompletionMessageToolCall toolCallMsg : choice.message().toolCalls().get()) {
+          Map<String, Object> arguments;
+          try {
+            arguments = objectMapper.readValue(
+                toolCallMsg.function().arguments(),
+                new TypeReference<Map<String, Object>>() {}
+            );
+          } catch (Exception e) {
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR, "Failed to parse tool arguments", e);
+          }
+
+          ToolCall newToolCall = ToolCall.create(
+              user,
+              toolResultMsg,
+              toolCallMsg.function().name(),
+              arguments,
+              toolCallMsg.id()
+          );
+          toolCallRepository.save(newToolCall);
+          toolCalls.add(newToolCall);
+
+          ToolContentDto toolContent = new ToolContentDto(
+              newToolCall.getFunctionName(),
+              arguments,
+              newToolCall.getId(), // will set after toolCall is saved
+              newToolCall.getStatus(),
+              newToolCall.getOpenaiToolCallId()
+          );
+          toolContents.add(toolContent);
+        }
+      }
+    }
+
+    String textContent = chatCompletion.choices().get(0).message().content().orElse("");
+    List<ContentDto> content = new ArrayList<>();
+    if (!textContent.isEmpty()) {
+      content.add(new TextContentDto(textContent));
+    }
+    content.addAll(toolContents);
+
+    // Create assistant response message with tool calls
+    Integer responseIndex = getNextMessageIndex(conversation.getId());
+    Message assistantResponse = Message.create(
+        user,
+        conversation,
+        toolResultMsg,
+        responseIndex,
+        Model.GPT_4_1_NANO,
+        MessageRole.ASSISTANT,
+        content
+    );
+    messageRepository.save(assistantResponse);
+
+    return MessageDto.from(assistantResponse);
+  }
+
+  @Transactional
   public void delete(Long userId, UUID messageId) {
     User user =
         userRepository
