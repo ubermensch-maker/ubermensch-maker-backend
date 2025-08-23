@@ -20,7 +20,7 @@ public class ToolCallController {
   private final MessageService messageService;
   private final UserService userService;
 
-  @PostMapping("/{toolCallId}/action")
+  @PostMapping("/{toolCallId}")
   public ResponseEntity<ToolCallActionResponseDto> executeAction(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
       @PathVariable UUID toolCallId,
