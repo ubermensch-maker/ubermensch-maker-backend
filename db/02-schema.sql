@@ -110,12 +110,12 @@ create table tool_calls
 -- token usage table
 create table token_usage
 (
-    id                uuid default uuid_generate_v7() primary key,
+    id                serial primary key,
     user_id           int         not null references users (id),
     message_id        uuid        references chat_messages (id),
     model             text        not null,
-    prompt_tokens     int         not null,
-    completion_tokens int         not null,
+    input_tokens      int         not null,
+    output_tokens     int         not null,
     total_tokens      int         not null,
     request_type      text,
     created_at        timestamptz not null default now(),
