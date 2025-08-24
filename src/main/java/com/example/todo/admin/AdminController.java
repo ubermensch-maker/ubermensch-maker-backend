@@ -1,8 +1,8 @@
 package com.example.todo.admin;
 
-import com.example.todo.admin.dto.SystemPromptDto;
-import com.example.todo.admin.dto.SystemPromptListDto;
-import com.example.todo.admin.dto.SystemPromptUpdateDto;
+import com.example.todo.admin.dto.PromptTemplateDto;
+import com.example.todo.admin.dto.PromptTemplateListDto;
+import com.example.todo.admin.dto.PromptTemplateUpdateDto;
 import com.example.todo.user.UserService;
 import com.example.todo.user.dto.UserDto;
 import com.example.todo.user.enums.UserRole;
@@ -15,31 +15,31 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequiredArgsConstructor
 public class AdminController {
-  private final SystemPromptService systemPromptService;
+  private final PromptTemplateService promptTemplateService;
   private final UserService userService;
 
-  @GetMapping("/admin/system-prompts/{systemPromptId}")
-  public SystemPromptDto getSystemPrompt(
+  @GetMapping("/admin/prompt-templates/{promptTemplateId}")
+  public PromptTemplateDto getPromptTemplate(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
-      @PathVariable Long systemPromptId) {
+      @PathVariable Long promptTemplateId) {
     validateAdminAccess(principal);
-    return systemPromptService.get(systemPromptId);
+    return promptTemplateService.get(promptTemplateId);
   }
 
-  @GetMapping("/admin/system-prompts")
-  public SystemPromptListDto listSystemPrompts(
+  @GetMapping("/admin/prompt-templates")
+  public PromptTemplateListDto listPromptTemplates(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
     validateAdminAccess(principal);
-    return systemPromptService.list();
+    return promptTemplateService.list();
   }
 
-  @PutMapping("/admin/system-prompts/{systemPromptId}")
-  public SystemPromptDto updateSystemPrompt(
+  @PutMapping("/admin/prompt-templates/{promptTemplateId}")
+  public PromptTemplateDto updatePromptTemplate(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
-      @PathVariable Long systemPromptId,
-      @RequestBody SystemPromptUpdateDto request) {
+      @PathVariable Long promptTemplateId,
+      @RequestBody PromptTemplateUpdateDto request) {
     validateAdminAccess(principal);
-    return systemPromptService.update(systemPromptId, request);
+    return promptTemplateService.update(promptTemplateId, request);
   }
 
   private void validateAdminAccess(org.springframework.security.core.userdetails.User principal) {

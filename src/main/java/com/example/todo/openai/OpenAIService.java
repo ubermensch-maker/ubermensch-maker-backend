@@ -1,6 +1,6 @@
 package com.example.todo.openai;
 
-import com.example.todo.admin.SystemPromptService;
+import com.example.todo.admin.PromptTemplateService;
 import com.example.todo.message.Message;
 import com.example.todo.message.dto.ContentDto;
 import com.example.todo.message.dto.MessageDto;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 public class OpenAIService {
   private final OpenAIClient client;
   private final TokenUsageRepository tokenUsageRepository;
-  private final SystemPromptService systemPromptService;
+  private final PromptTemplateService promptTemplateService;
 
   public String chatCompletion(List<MessageDto> messages, Model model, User user, Message message) {
     try {
@@ -82,7 +82,7 @@ public class OpenAIService {
               .addTool(CreateQuest.class);
 
       // add system prompt from database
-      String systemPrompt = systemPromptService.getByName("default").getPrompt();
+      String systemPrompt = promptTemplateService.getByName("default_system_prompt").getContent();
       paramsBuilder.addSystemMessage(systemPrompt);
 
       for (MessageDto msg : messages) {

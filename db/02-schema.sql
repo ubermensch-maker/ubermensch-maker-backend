@@ -134,12 +134,12 @@ create table memories
     deleted_at timestamptz
 );
 
--- system prompt table
-create table system_prompts
+-- prompt template table
+create table prompt_templates
 (
     id         serial primary key,
-    name       text        not null,
-    prompt     text        not null,
+    name       text        not null unique,
+    content    text        not null,
     version    int         not null default 1,
     metadata   jsonb,
     created_at timestamptz not null default now(),

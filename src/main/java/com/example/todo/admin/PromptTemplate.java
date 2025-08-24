@@ -13,13 +13,13 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(name = "system_prompts")
+@Table(name = "prompt_templates")
 @SQLRestriction("deleted_at IS NULL")
-@SQLDelete(sql = "UPDATE system_prompts SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE prompt_templates SET deleted_at = NOW() WHERE id = ?")
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SystemPrompt {
+public class PromptTemplate {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -28,7 +28,7 @@ public class SystemPrompt {
   private String name;
 
   @Column(columnDefinition = "TEXT", nullable = false)
-  private String prompt;
+  private String content;
 
   @Column(nullable = false)
   private Integer version;
@@ -46,20 +46,20 @@ public class SystemPrompt {
   @Column(name = "deleted_at")
   private Instant deletedAt;
 
-  public static SystemPrompt create(String name, String prompt, Map<String, Object> metadata) {
-    SystemPrompt systemPrompt = new SystemPrompt();
-    systemPrompt.name = name;
-    systemPrompt.prompt = prompt;
-    systemPrompt.version = 1;
-    systemPrompt.metadata = metadata;
-    systemPrompt.createdAt = Instant.now();
-    systemPrompt.updatedAt = systemPrompt.createdAt;
-    return systemPrompt;
+  public static PromptTemplate create(String name, String content, Map<String, Object> metadata) {
+    PromptTemplate promptTemplate = new PromptTemplate();
+    promptTemplate.name = name;
+    promptTemplate.content = content;
+    promptTemplate.version = 1;
+    promptTemplate.metadata = metadata;
+    promptTemplate.createdAt = Instant.now();
+    promptTemplate.updatedAt = promptTemplate.createdAt;
+    return promptTemplate;
   }
 
-  public void update(String name, String prompt, Map<String, Object> metadata) {
+  public void update(String name, String content, Map<String, Object> metadata) {
     if (name != null) this.name = name;
-    if (prompt != null) this.prompt = prompt;
+    if (content != null) this.content = content;
     if (metadata != null) this.metadata = metadata;
     this.version = this.version + 1;
     this.updatedAt = Instant.now();

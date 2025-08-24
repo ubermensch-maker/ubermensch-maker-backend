@@ -4,8 +4,8 @@ import java.util.Map;
 import lombok.Getter;
 
 @Getter
-public class SystemPromptUpdateDto {
+public class PromptTemplateUpdateDto {
   private String name;
-  private String prompt;
+  private String content;
   private Map<String, Object> metadata;
 }

@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SystemPromptListDto {
+public class PromptTemplateListDto {
   private int total;
-  private List<SystemPromptDto> items;
+  private List<PromptTemplateDto> items;
 }
