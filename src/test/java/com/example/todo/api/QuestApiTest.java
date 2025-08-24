@@ -45,12 +45,12 @@ public class QuestApiTest {
   }
 
   @Test
-  void readTest() {
-    QuestDto response = read(TEST_QUEST_ID);
+  void getTest() {
+    QuestDto response = get(TEST_QUEST_ID);
     System.out.println("response = " + response);
   }
 
-  QuestDto read(Long questId) {
+  QuestDto get(Long questId) {
     return restClient.get().uri("/quests/{questId}", questId).retrieve().body(QuestDto.class);
   }
 
@@ -60,7 +60,7 @@ public class QuestApiTest {
         TEST_USER_ID,
         TEST_QUEST_ID,
         new QuestUpdateDto("new title", "new description", QuestStatus.IN_PROGRESS, null, null));
-    QuestDto response = read(TEST_QUEST_ID);
+    QuestDto response = get(TEST_QUEST_ID);
     System.out.println("response = " + response);
   }
 
@@ -78,7 +78,7 @@ public class QuestApiTest {
   @Test
   void deleteTest() {
     delete(TEST_USER_ID, TEST_QUEST_ID);
-    assertThrows(Exception.class, () -> read(TEST_QUEST_ID));
+    assertThrows(Exception.class, () -> get(TEST_QUEST_ID));
   }
 
   void delete(Long userId, Long questId) {

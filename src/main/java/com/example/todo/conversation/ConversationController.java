@@ -25,11 +25,11 @@ public class ConversationController {
   }
 
   @GetMapping("/conversations/{conversationId}")
-  public ConversationDto read(
+  public ConversationDto get(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
       @PathVariable UUID conversationId) {
     Long userId = userService.getByEmail(principal.getUsername()).getId();
-    return conversationService.read(userId, conversationId);
+    return conversationService.get(userId, conversationId);
   }
 
   @GetMapping("/conversations")

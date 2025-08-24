@@ -24,8 +24,8 @@ public class QuestController {
   }
 
   @GetMapping("/quests/{questId}")
-  public QuestDto read(@PathVariable Long questId) {
-    return questService.read(questId);
+  public QuestDto get(@PathVariable Long questId) {
+    return questService.get(questId);
   }
 
   @GetMapping("/quests")

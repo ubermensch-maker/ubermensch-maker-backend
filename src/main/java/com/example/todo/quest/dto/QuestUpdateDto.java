@@ -4,8 +4,10 @@ import com.example.todo.quest.enums.QuestStatus;
 import com.example.todo.quest.enums.QuestType;
 import java.time.Instant;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class QuestUpdateDto {
   private String title;
   private String description;

@@ -24,8 +24,8 @@ public class MilestoneController {
   }
 
   @GetMapping("/milestones/{milestoneId}")
-  public MilestoneDto read(@PathVariable Long milestoneId) {
-    return milestoneService.read(milestoneId);
+  public MilestoneDto get(@PathVariable Long milestoneId) {
+    return milestoneService.get(milestoneId);
   }
 
   @GetMapping("/milestones")

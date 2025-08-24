@@ -24,19 +24,19 @@ public class UserApiTest {
   }
 
   @Test
-  void readTest() {
-    UserDto response = read(TEST_USER_ID);
+  void getTest() {
+    UserDto response = get(TEST_USER_ID);
     System.out.println("response = " + response);
   }
 
-  UserDto read(Long userId) {
+  UserDto get(Long userId) {
     return restClient.get().uri("/users/{userId}", userId).retrieve().body(UserDto.class);
   }
 
   @Test
   void updateTest() {
     update(TEST_USER_ID, new UserUpdateDto("new email", "new name"));
-    UserDto response = read(TEST_USER_ID);
+    UserDto response = get(TEST_USER_ID);
     System.out.println("response = " + response);
   }
 
@@ -47,7 +47,7 @@ public class UserApiTest {
   @Test
   void deleteTest() {
     delete(TEST_USER_ID);
-    assertThrows(Exception.class, () -> read(TEST_USER_ID));
+    assertThrows(Exception.class, () -> get(TEST_USER_ID));
   }
 
   void delete(Long userId) {

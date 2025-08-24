@@ -48,7 +48,7 @@ public class MilestoneService {
     return MilestoneDto.from(milestoneRepository.save(milestone));
   }
 
-  public MilestoneDto read(Long milestoneId) {
+  public MilestoneDto get(Long milestoneId) {
     Milestone milestone =
         milestoneRepository
             .findById(milestoneId)
