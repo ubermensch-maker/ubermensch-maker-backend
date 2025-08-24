@@ -12,11 +12,9 @@ import com.example.todo.quest.dto.QuestDto;
 import com.example.todo.quest.enums.QuestType;
 import com.example.todo.toolcall.dto.ToolCallActionDto;
 import com.example.todo.toolcall.enums.ToolCallStatus;
-import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -37,7 +35,7 @@ public class ToolCallService {
 
   @Transactional
   public ToolCall executeAction(Long userId, UUID toolCallId, ToolCallActionDto request) {
-    User user = userRepository
+    userRepository
         .findById(userId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -67,10 +65,10 @@ public class ToolCallService {
 
   private Map<String, Object> executeTool(Long userId, ToolCall toolCall) {
     Map<String, Object> arguments = toolCall.getArguments();
-    String functionName = toolCall.getFunctionName();
+    String toolName = toolCall.getToolName();
 
     try {
-      switch (functionName) {
+      switch (toolName) {
         case "CreateGoal":
           return executeCreateGoal(userId, arguments);
         case "CreateMilestone":
@@ -78,7 +76,7 @@ public class ToolCallService {
         case "CreateQuest":
           return executeCreateQuest(userId, arguments);
         default:
-          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown function: " + functionName);
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tool: " + toolName);
       }
     } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Function execution failed", e);
@@ -125,12 +123,12 @@ public class ToolCallService {
   }
 
   public String generateToolResultMessage(ToolCall toolCall) {
-    String functionName = toolCall.getFunctionName();
+    String toolName = toolCall.getToolName();
     ToolCallStatus status = toolCall.getStatus();
     
     if (ToolCallStatus.ACCEPTED.equals(status)) {
       Map<String, Object> result = toolCall.getResult();
-      switch (functionName) {
+      switch (toolName) {
         case "CreateGoal":
           return String.format("목표가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
               result.get("goalId"), result.get("title"));
@@ -141,10 +139,10 @@ public class ToolCallService {
           return String.format("퀘스트가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
               result.get("questId"), result.get("title"));
         default:
-          return String.format("%s 함수가 성공적으로 실행되었습니다.", functionName);
+          return String.format("%s 도구가 성공적으로 실행되었습니다.", toolName);
       }
     } else if (ToolCallStatus.REJECTED.equals(status)) {
-      switch (functionName) {
+      switch (toolName) {
         case "CreateGoal":
           return "목표 생성이 사용자에 의해 거부되었습니다.";
         case "CreateMilestone":
@@ -152,7 +150,7 @@ public class ToolCallService {
         case "CreateQuest":
           return "퀘스트 생성이 사용자에 의해 거부되었습니다.";
         default:
-          return String.format("%s 함수 실행이 사용자에 의해 거부되었습니다.", functionName);
+          return String.format("%s 도구 실행이 사용자에 의해 거부되었습니다.", toolName);
       }
     }
     

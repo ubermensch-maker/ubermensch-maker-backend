@@ -15,6 +15,7 @@ import com.example.todo.message.enums.Model;
 import com.example.todo.openai.OpenAIService;
 import com.example.todo.toolcall.ToolCall;
 import com.example.todo.toolcall.ToolCallRepository;
+import com.example.todo.toolcall.enums.ToolCallSource;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import com.openai.models.chat.completions.ChatCompletion;
@@ -128,7 +129,9 @@ public class MessageService {
               null, // will set after message is saved
               toolCall.function().name(),
               arguments,
-              toolCall.id()
+              ToolCallSource.OPENAI,
+              toolCall.id(),
+              null // no additional metadata for now
           );
           toolCalls.add(toolCallEntity);
           
@@ -169,9 +172,11 @@ public class MessageService {
       toolCall = ToolCall.create(
           user,
           outputMessage,
-          toolCall.getFunctionName(),
+          toolCall.getToolName(),
           toolCall.getArguments(),
-          toolCall.getOpenaiToolCallId()
+          toolCall.getSource(),
+          toolCall.getSourceCallId(),
+          toolCall.getSourceMetadata()
       );
       toolCallRepository.save(toolCall);
       
@@ -182,7 +187,7 @@ public class MessageService {
           originalToolContent.getArgs(),
           toolCall.getId(),
           toolCall.getStatus(),
-          originalToolContent.getOpenaiToolCallId()
+          originalToolContent.getSourceCallId()
       );
       outputContents.set(outputContents.indexOf(originalToolContent), updatedToolContent);
     }
@@ -336,17 +341,19 @@ public class MessageService {
               toolResultMsg,
               toolCallMsg.function().name(),
               arguments,
-              toolCallMsg.id()
+              ToolCallSource.OPENAI,
+              toolCallMsg.id(),
+              null // no additional metadata for now
           );
           toolCallRepository.save(newToolCall);
           toolCalls.add(newToolCall);
 
           ToolContentDto toolContent = new ToolContentDto(
-              newToolCall.getFunctionName(),
+              newToolCall.getToolName(),
               arguments,
               newToolCall.getId(), // will set after toolCall is saved
               newToolCall.getStatus(),
-              newToolCall.getOpenaiToolCallId()
+              newToolCall.getSourceCallId()
           );
           toolContents.add(toolContent);
         }

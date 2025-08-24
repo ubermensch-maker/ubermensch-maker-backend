@@ -89,6 +89,40 @@ create table chat_messages
     deleted_at        timestamptz
 );
 
+-- tool call table
+create table tool_calls
+(
+    id                  uuid default uuid_generate_v7() primary key,
+    user_id             int         not null references users (id),
+    message_id          uuid        not null references chat_messages (id),
+    tool_name           text        not null,
+    arguments           jsonb       not null,
+    result              jsonb,
+    status              text        not null check ( status in ('PENDING', 'ACCEPTED', 'REJECTED') ),
+    source              text        not null check ( source in ('OPENAI', 'ANTHROPIC', 'GOOGLE', 'MCP', 'CUSTOM') ),
+    source_call_id      text,
+    source_metadata     jsonb,
+    created_at          timestamptz not null default now(),
+    updated_at          timestamptz not null default now(),
+    deleted_at          timestamptz
+);
+
+-- token usage table
+create table token_usage
+(
+    id                uuid default uuid_generate_v7() primary key,
+    user_id           int         not null references users (id),
+    message_id        uuid        references chat_messages (id),
+    model             text        not null,
+    prompt_tokens     int         not null,
+    completion_tokens int         not null,
+    total_tokens      int         not null,
+    request_type      text,
+    created_at        timestamptz not null default now(),
+    updated_at        timestamptz not null default now(),
+    deleted_at        timestamptz
+);
+
 -- memory table
 create table memories
 (
@@ -111,36 +145,4 @@ create table system_prompts
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
     deleted_at timestamptz
-);
-
--- tool call table
-create table tool_calls
-(
-    id                  uuid default uuid_generate_v7() primary key,
-    user_id             int         not null references users (id),
-    message_id          uuid        not null references chat_messages (id),
-    function_name       text        not null,
-    arguments           jsonb       not null,
-    result              jsonb,
-    status              text        not null check ( status in ('PENDING', 'ACCEPTED', 'REJECTED') ),
-    openai_tool_call_id text,
-    created_at          timestamptz not null default now(),
-    updated_at          timestamptz not null default now(),
-    deleted_at          timestamptz
-);
-
--- token usage table
-create table token_usage
-(
-    id                uuid default uuid_generate_v7() primary key,
-    user_id           int         not null references users (id),
-    message_id        uuid        references chat_messages (id),
-    model             text        not null,
-    prompt_tokens     int         not null,
-    completion_tokens int         not null,
-    total_tokens      int         not null,
-    request_type      text,
-    created_at        timestamptz not null default now(),
-    updated_at        timestamptz not null default now(),
-    deleted_at        timestamptz
 );
