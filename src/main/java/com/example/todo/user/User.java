@@ -33,10 +33,10 @@ public class User {
   private String picture;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(name = "oauth_provider", nullable = false)
   private OAuthProvider provider;
 
-  @Column(name = "provider_id", nullable = false)
+  @Column(name = "oauth_provider_id", nullable = false)
   private String providerId;
 
   @Enumerated(EnumType.STRING)

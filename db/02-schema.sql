@@ -3,12 +3,11 @@ create table users
 (
     id                serial primary key,
     email             text        not null unique,
-    password          text,
     name              text        not null,
     role              text        not null check ( role in ('USER', 'ADMIN') ),
     picture           text,
-    oauth_provider    text check ( oauth_provider in ('GOOGLE', 'GITHUB', 'KAKAO') ),
-    oauth_provider_id text,
+    oauth_provider    text        not null check ( oauth_provider in ('GOOGLE') ),
+    oauth_provider_id text        not null,
     created_at        timestamptz not null default now(),
     updated_at        timestamptz not null default now(),
     deleted_at        timestamptz
@@ -90,12 +89,59 @@ create table chat_messages
     deleted_at        timestamptz
 );
 
+-- tool call table
+create table tool_calls
+(
+    id                  uuid default uuid_generate_v7() primary key,
+    user_id             int         not null references users (id),
+    message_id          uuid        not null references chat_messages (id),
+    tool_name           text        not null,
+    arguments           jsonb       not null,
+    result              jsonb,
+    status              text        not null check ( status in ('PENDING', 'ACCEPTED', 'REJECTED') ),
+    source              text        not null check ( source in ('OPENAI', 'ANTHROPIC', 'GOOGLE', 'MCP', 'CUSTOM') ),
+    source_call_id      text,
+    source_metadata     jsonb,
+    created_at          timestamptz not null default now(),
+    updated_at          timestamptz not null default now(),
+    deleted_at          timestamptz
+);
+
+-- token usage table
+create table token_usage
+(
+    id                uuid default uuid_generate_v7() primary key,
+    user_id           int         not null references users (id),
+    message_id        uuid        references chat_messages (id),
+    model             text        not null,
+    prompt_tokens     int         not null,
+    completion_tokens int         not null,
+    total_tokens      int         not null,
+    request_type      text,
+    created_at        timestamptz not null default now(),
+    updated_at        timestamptz not null default now(),
+    deleted_at        timestamptz
+);
+
 -- memory table
 create table memories
 (
     id         serial primary key,
     user_id    int         not null references users (id),
     content    text        not null,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    deleted_at timestamptz
+);
+
+-- system prompt table
+create table system_prompts
+(
+    id         uuid default uuid_generate_v7() primary key,
+    name       text        not null,
+    prompt     text        not null,
+    version    int         not null default 1,
+    metadata   jsonb,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),
     deleted_at timestamptz
