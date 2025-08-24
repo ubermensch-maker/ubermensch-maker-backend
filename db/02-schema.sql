@@ -137,7 +137,7 @@ create table memories
 -- system prompt table
 create table system_prompts
 (
-    id         uuid default uuid_generate_v7() primary key,
+    id         serial primary key,
     name       text        not null,
     prompt     text        not null,
     version    int         not null default 1,
