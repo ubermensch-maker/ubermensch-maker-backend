@@ -9,6 +9,8 @@ import com.example.todo.milestone.dto.MilestoneDto;
 import com.example.todo.quest.QuestService;
 import com.example.todo.quest.dto.QuestCreateDto;
 import com.example.todo.quest.dto.QuestDto;
+import com.example.todo.quest.dto.QuestUpdateDto;
+import com.example.todo.quest.enums.QuestStatus;
 import com.example.todo.quest.enums.QuestType;
 import com.example.todo.toolcall.dto.ToolCallActionDto;
 import com.example.todo.toolcall.enums.ToolCallStatus;
@@ -39,9 +41,11 @@ public class ToolCallService {
         .findById(userId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-    ToolCall toolCall = toolCallRepository
-        .findById(toolCallId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tool call not found"));
+    ToolCall toolCall =
+        toolCallRepository
+            .findById(toolCallId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tool call not found"));
 
     if (!userId.equals(toolCall.getUser().getId())) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
@@ -52,7 +56,7 @@ public class ToolCallService {
     }
 
     if ("accept".equals(request.getAction())) {
-      Map<String, Object> result = executeTool(userId, toolCall);
+      Map<String, Object> result = executeTool(userId, toolCall, request.getArguments());
       toolCall.accept(result);
     } else if ("reject".equals(request.getAction())) {
       toolCall.reject();
@@ -63,8 +67,9 @@ public class ToolCallService {
     return toolCallRepository.save(toolCall);
   }
 
-  private Map<String, Object> executeTool(Long userId, ToolCall toolCall) {
-    Map<String, Object> arguments = toolCall.getArguments();
+  private Map<String, Object> executeTool(Long userId, ToolCall toolCall, Map<String, Object> overrideArguments) {
+    // use override arguments if provided, otherwise use original toolCall arguments
+    Map<String, Object> arguments = overrideArguments != null ? overrideArguments : toolCall.getArguments();
     String toolName = toolCall.getToolName();
 
     try {
@@ -75,18 +80,21 @@ public class ToolCallService {
           return executeCreateMilestone(userId, arguments);
         case "CreateQuest":
           return executeCreateQuest(userId, arguments);
+        case "CompleteQuest":
+          return executeCompleteQuest(userId, arguments);
         default:
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tool: " + toolName);
       }
     } catch (Exception e) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Function execution failed", e);
+      throw new ResponseStatusException(
+          HttpStatus.INTERNAL_SERVER_ERROR, "Function execution failed", e);
     }
   }
 
   private Map<String, Object> executeCreateGoal(Long userId, Map<String, Object> arguments) {
     GoalCreateDto createDto = objectMapper.convertValue(arguments, GoalCreateDto.class);
     GoalDto goal = goalService.create(userId, createDto);
-    
+
     Map<String, Object> result = new HashMap<>();
     result.put("success", true);
     result.put("goalId", goal.getId());
@@ -97,7 +105,7 @@ public class ToolCallService {
   private Map<String, Object> executeCreateMilestone(Long userId, Map<String, Object> arguments) {
     MilestoneCreateDto createDto = objectMapper.convertValue(arguments, MilestoneCreateDto.class);
     MilestoneDto milestone = milestoneService.create(userId, createDto);
-    
+
     Map<String, Object> result = new HashMap<>();
     result.put("success", true);
     result.put("milestoneId", milestone.getId());
@@ -111,10 +119,10 @@ public class ToolCallService {
       String typeStr = (String) adjustedArgs.get("type");
       adjustedArgs.put("type", QuestType.valueOf(typeStr.toUpperCase()));
     }
-    
+
     QuestCreateDto createDto = objectMapper.convertValue(adjustedArgs, QuestCreateDto.class);
     QuestDto quest = questService.create(userId, createDto);
-    
+
     Map<String, Object> result = new HashMap<>();
     result.put("success", true);
     result.put("questId", quest.getId());
@@ -122,22 +130,42 @@ public class ToolCallService {
     return result;
   }
 
+  private Map<String, Object> executeCompleteQuest(Long userId, Map<String, Object> arguments) {
+    Long questId = Long.valueOf(arguments.get("questId").toString());
+
+    QuestUpdateDto updateDto = new QuestUpdateDto();
+    updateDto.setStatus(QuestStatus.COMPLETED);
+
+    QuestDto quest = questService.update(userId, questId, updateDto);
+
+    Map<String, Object> result = new HashMap<>();
+    result.put("success", true);
+    result.put("questId", quest.getId());
+    result.put("title", quest.getTitle());
+    result.put("status", quest.getStatus());
+    return result;
+  }
+
   public String generateToolResultMessage(ToolCall toolCall) {
     String toolName = toolCall.getToolName();
     ToolCallStatus status = toolCall.getStatus();
-    
+
     if (ToolCallStatus.ACCEPTED.equals(status)) {
       Map<String, Object> result = toolCall.getResult();
       switch (toolName) {
         case "CreateGoal":
-          return String.format("목표가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
-              result.get("goalId"), result.get("title"));
+          return String.format(
+              "목표가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", result.get("goalId"), result.get("title"));
         case "CreateMilestone":
-          return String.format("마일스톤이 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
+          return String.format(
+              "마일스톤이 성공적으로 생성되었습니다. (ID: %s, 제목: %s)",
               result.get("milestoneId"), result.get("title"));
         case "CreateQuest":
-          return String.format("퀘스트가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", 
-              result.get("questId"), result.get("title"));
+          return String.format(
+              "퀘스트가 성공적으로 생성되었습니다. (ID: %s, 제목: %s)", result.get("questId"), result.get("title"));
+        case "CompleteQuest":
+          return String.format(
+              "퀘스트가 성공적으로 완료되었습니다. (ID: %s, 제목: %s)", result.get("questId"), result.get("title"));
         default:
           return String.format("%s 도구가 성공적으로 실행되었습니다.", toolName);
       }
@@ -149,11 +177,13 @@ public class ToolCallService {
           return "마일스톤 생성이 사용자에 의해 거부되었습니다.";
         case "CreateQuest":
           return "퀘스트 생성이 사용자에 의해 거부되었습니다.";
+        case "CompleteQuest":
+          return "퀘스트 완료가 사용자에 의해 거부되었습니다.";
         default:
           return String.format("%s 도구 실행이 사용자에 의해 거부되었습니다.", toolName);
       }
     }
-    
+
     return "툴 실행 상태를 확인할 수 없습니다.";
   }
 }

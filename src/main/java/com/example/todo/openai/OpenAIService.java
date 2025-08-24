@@ -6,6 +6,7 @@ import com.example.todo.message.dto.ContentDto;
 import com.example.todo.message.dto.MessageDto;
 import com.example.todo.message.dto.TextContentDto;
 import com.example.todo.message.enums.Model;
+import com.example.todo.toolcall.functions.CompleteQuest;
 import com.example.todo.toolcall.functions.CreateGoal;
 import com.example.todo.toolcall.functions.CreateMilestone;
 import com.example.todo.toolcall.functions.CreateQuest;
@@ -14,8 +15,6 @@ import com.example.todo.usage.TokenUsageRepository;
 import com.example.todo.user.User;
 import com.openai.client.OpenAIClient;
 import com.openai.models.chat.completions.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,7 +54,7 @@ public class OpenAIService {
       ChatCompletionCreateParams params = paramsBuilder.build();
       ChatCompletion chatCompletion = client.chat().completions().create(params);
 
-      // Token usage 저장
+      // save token usage
       if (chatCompletion.usage().isPresent()) {
         saveTokenUsage(user, message, model, chatCompletion.usage().get(), "chat_completion");
       }
@@ -66,20 +65,15 @@ public class OpenAIService {
     }
   }
 
-  // 기존 호환성을 위한 오버로드 메서드
-  public String chatCompletion(List<MessageDto> messages, Model model) {
-    return chatCompletion(messages, model, null, null);
-  }
-
-  public ChatCompletion chatCompletionWithTools(
-      List<MessageDto> messages, Model model, User user, Message message) {
+  public ChatCompletion chatCompletionWithTools(List<MessageDto> messages, Model model) {
     try {
       ChatCompletionCreateParams.Builder paramsBuilder =
           ChatCompletionCreateParams.builder()
               .model(model.getValue())
               .addTool(CreateGoal.class)
               .addTool(CreateMilestone.class)
-              .addTool(CreateQuest.class);
+              .addTool(CreateQuest.class)
+              .addTool(CompleteQuest.class);
 
       // add system prompt from database
       String systemPrompt = promptTemplateService.getByName("default_system_prompt").getContent();
@@ -107,25 +101,13 @@ public class OpenAIService {
 
       ChatCompletionCreateParams params = paramsBuilder.build();
       ChatCompletion chatCompletion = client.chat().completions().create(params);
-
-      // Token usage 저장
-      if (chatCompletion.usage().isPresent()) {
-        saveTokenUsage(
-            user, message, model, chatCompletion.usage().get(), "chat_completion_with_tools");
-      }
-
       return chatCompletion;
     } catch (Exception e) {
       throw new RuntimeException("Failed to call OpenAI chat completion with tools", e);
     }
   }
 
-  // 기존 호환성을 위한 오버로드 메서드
-  public ChatCompletion chatCompletionWithTools(List<MessageDto> messages, Model model) {
-    return chatCompletionWithTools(messages, model, null, null);
-  }
-
-  private void saveTokenUsage(
+  public void saveTokenUsage(
       User user, Message message, Model model, Object usage, String requestType) {
     if (user != null && usage != null) {
       try {
@@ -154,7 +136,7 @@ public class OpenAIService {
                 user, message, model, promptTokens, completionTokens, totalTokens, requestType);
         tokenUsageRepository.save(tokenUsage);
       } catch (Exception e) {
-        // Usage 저장 실패해도 main flow는 계속 진행
+        // even if saving usage fails, the main flow continues
         System.err.println("Failed to save token usage: " + e.getMessage());
       }
     }
