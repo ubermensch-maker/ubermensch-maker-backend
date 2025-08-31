@@ -5,7 +5,7 @@ create table users
     email             text        not null unique,
     name              text        not null,
     role              text        not null check ( role in ('USER', 'ADMIN') ),
-    picture           text,
+    picture_url           text,
     oauth_provider    text        not null check ( oauth_provider in ('GOOGLE') ),
     oauth_provider_id text        not null,
     created_at        timestamptz not null default now(),

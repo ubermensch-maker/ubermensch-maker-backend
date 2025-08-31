@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "token_usage")
@@ -21,8 +22,9 @@ import org.hibernate.annotations.SQLRestriction;
 public class TokenUsage {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
+  @GeneratedValue
+  @UuidGenerator
+  @Column(columnDefinition = "uuid default uuid_generate_v7()")
   private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)

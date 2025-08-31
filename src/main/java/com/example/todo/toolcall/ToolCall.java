@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 @Entity
@@ -25,8 +26,9 @@ import org.hibernate.type.SqlTypes;
 public class ToolCall {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
+  @GeneratedValue
+  @UuidGenerator
+  @Column(columnDefinition = "uuid default uuid_generate_v7()")
   private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY)
