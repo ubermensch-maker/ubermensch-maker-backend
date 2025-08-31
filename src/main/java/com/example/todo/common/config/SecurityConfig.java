@@ -4,6 +4,7 @@ import com.example.todo.auth.handler.OAuth2FailureHandler;
 import com.example.todo.auth.handler.OAuth2SuccessHandler;
 import com.example.todo.common.security.JwtAuthenticationFilter;
 import com.example.todo.common.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -50,6 +51,31 @@ public class SecurityConfig {
                     .permitAll()
                     .anyRequest()
                     .authenticated())
+        .exceptionHandling(
+            exceptions ->
+                exceptions
+                    .authenticationEntryPoint(
+                        (request, response, authException) -> {
+                          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                          response.setContentType("application/json");
+                          response
+                              .getWriter()
+                              .write(
+                                  "{\"error\": \"Unauthorized\", \"message\": \""
+                                      + authException.getMessage()
+                                      + "\"}");
+                        })
+                    .accessDeniedHandler(
+                        (request, response, accessDeniedException) -> {
+                          response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                          response.setContentType("application/json");
+                          response
+                              .getWriter()
+                              .write(
+                                  "{\"error\": \"Forbidden\", \"message\": \""
+                                      + accessDeniedException.getMessage()
+                                      + "\"}");
+                        }))
         .oauth2Login(
             oauth2 ->
                 oauth2.successHandler(oAuth2SuccessHandler).failureHandler(oAuth2FailureHandler))
