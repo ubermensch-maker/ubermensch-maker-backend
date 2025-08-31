@@ -67,9 +67,11 @@ public class ToolCallService {
     return toolCallRepository.save(toolCall);
   }
 
-  private Map<String, Object> executeTool(Long userId, ToolCall toolCall, Map<String, Object> overrideArguments) {
+  private Map<String, Object> executeTool(
+      Long userId, ToolCall toolCall, Map<String, Object> overrideArguments) {
     // use override arguments if provided, otherwise use original toolCall arguments
-    Map<String, Object> arguments = overrideArguments != null ? overrideArguments : toolCall.getArguments();
+    Map<String, Object> arguments =
+        overrideArguments != null ? overrideArguments : toolCall.getArguments();
     String toolName = toolCall.getToolName();
 
     try {
