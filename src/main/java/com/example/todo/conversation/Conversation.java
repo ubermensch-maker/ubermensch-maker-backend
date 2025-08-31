@@ -1,8 +1,10 @@
 package com.example.todo.conversation;
 
+import com.example.todo.message.Message;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -41,6 +43,9 @@ public class Conversation {
 
   @Column(name = "deleted_at")
   private Instant deletedAt;
+
+  @OneToMany(mappedBy = "conversation", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Message> messages;
 
   public static Conversation create(User user, String title) {
     Conversation conversation = new Conversation();

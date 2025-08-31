@@ -1,9 +1,16 @@
 package com.example.todo.user;
 
+import com.example.todo.conversation.Conversation;
+import com.example.todo.goal.Goal;
+import com.example.todo.milestone.Milestone;
+import com.example.todo.quest.Quest;
+import com.example.todo.toolcall.ToolCall;
+import com.example.todo.usage.TokenUsage;
 import com.example.todo.user.enums.OAuthProvider;
 import com.example.todo.user.enums.UserRole;
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,6 +58,24 @@ public class User {
 
   @Column(name = "deleted_at")
   private Instant deletedAt;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Goal> goals;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Milestone> milestones;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Quest> quests;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Conversation> conversations;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<ToolCall> toolCalls;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<TokenUsage> tokenUsages;
 
   public static User createFromOAuth(
       String email, String name, String picture, OAuthProvider provider, String providerId) {

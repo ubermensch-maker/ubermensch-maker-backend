@@ -1,9 +1,12 @@
 package com.example.todo.goal;
 
 import com.example.todo.goal.enums.GoalStatus;
+import com.example.todo.milestone.Milestone;
+import com.example.todo.quest.Quest;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,6 +53,12 @@ public class Goal {
 
   @Column(name = "deleted_at")
   private Instant deletedAt;
+
+  @OneToMany(mappedBy = "goal", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Milestone> milestones;
+
+  @OneToMany(mappedBy = "goal", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Quest> quests;
 
   public static Goal create(
       User user, String title, String description, Instant startAt, Instant endAt) {
