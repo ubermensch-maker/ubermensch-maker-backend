@@ -6,7 +6,6 @@ import com.example.todo.milestone.dto.MilestoneCreateDto;
 import com.example.todo.milestone.dto.MilestoneDto;
 import com.example.todo.milestone.dto.MilestoneListDto;
 import com.example.todo.milestone.dto.MilestoneUpdateDto;
-import com.example.todo.quest.QuestRepository;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -22,7 +21,6 @@ public class MilestoneService {
   private final MilestoneRepository milestoneRepository;
   private final UserRepository userRepository;
   private final GoalRepository goalRepository;
-  private final QuestRepository questRepository;
 
   @Transactional
   public MilestoneDto create(Long userId, MilestoneCreateDto request) {
@@ -117,7 +115,6 @@ public class MilestoneService {
           HttpStatus.FORBIDDEN, "You do not have permission to delete this milestone");
     }
 
-    questRepository.deleteAllByMilestoneId(milestoneId);
     milestoneRepository.delete(milestone);
   }
 }

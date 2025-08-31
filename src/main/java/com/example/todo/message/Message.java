@@ -28,7 +28,7 @@ import org.hibernate.type.SqlTypes;
 @SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE chat_messages SET deleted_at = NOW() WHERE id = ?")
 @Getter
-@ToString
+@ToString(exclude = {"user", "conversation", "parentMessage", "toolCalls", "tokenUsages"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message {
   @Id

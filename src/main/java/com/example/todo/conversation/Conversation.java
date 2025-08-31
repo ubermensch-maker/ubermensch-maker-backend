@@ -19,7 +19,7 @@ import org.hibernate.annotations.UuidGenerator;
 @SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE chat_conversations SET deleted_at = NOW() WHERE id = ?")
 @Getter
-@ToString
+@ToString(exclude = {"user", "messages"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Conversation {
   @Id

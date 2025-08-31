@@ -12,8 +12,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
 
   List<Message> findByConversationIdOrderByIndexDesc(UUID conversationId, Pageable pageable);
 
-  void deleteAllByConversationId(UUID conversationId);
-
   Optional<Message> findTopByConversationIdOrderByIndexDesc(UUID conversationId);
 
   Optional<Message> findTopByConversationIdAndIndexLessThanOrderByIndexDesc(
