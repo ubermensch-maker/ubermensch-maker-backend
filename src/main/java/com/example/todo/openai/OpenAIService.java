@@ -14,8 +14,6 @@ import com.example.todo.usage.TokenUsageRepository;
 import com.example.todo.user.User;
 import com.openai.client.OpenAIClient;
 import com.openai.models.chat.completions.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

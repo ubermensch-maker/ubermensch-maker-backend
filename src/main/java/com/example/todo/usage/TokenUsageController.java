@@ -17,10 +17,10 @@ public class TokenUsageController {
   @GetMapping("/summary")
   public ResponseEntity<TokenUsageSummaryDto> getUserTokenUsageSummary(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
-    
+
     Long userId = userService.getByEmail(principal.getUsername()).getId();
     TokenUsageSummaryDto summary = tokenUsageService.getUserTokenUsageSummary(userId);
-    
+
     return ResponseEntity.ok(summary);
   }
 }

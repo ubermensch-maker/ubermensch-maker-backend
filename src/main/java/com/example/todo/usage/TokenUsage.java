@@ -85,6 +85,7 @@ public class TokenUsage {
       Integer completionTokens,
       Integer totalTokens,
       String requestType) {
-    return new TokenUsage(user, message, model, promptTokens, completionTokens, totalTokens, requestType);
+    return new TokenUsage(
+        user, message, model, promptTokens, completionTokens, totalTokens, requestType);
   }
 }
