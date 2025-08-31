@@ -24,8 +24,8 @@ public class GoalController {
   }
 
   @GetMapping("/goals/{goalId}")
-  public GoalDto read(@PathVariable Long goalId) {
-    return goalService.read(goalId);
+  public GoalDto get(@PathVariable Long goalId) {
+    return goalService.get(goalId);
   }
 
   @GetMapping("/goals")

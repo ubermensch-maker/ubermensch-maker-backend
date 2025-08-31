@@ -41,12 +41,12 @@ public class MilestoneApiTest {
   }
 
   @Test
-  void readTest() {
-    MilestoneDto response = read(TEST_MILESTONE_ID);
+  void getTest() {
+    MilestoneDto response = get(TEST_MILESTONE_ID);
     System.out.println("response = " + response);
   }
 
-  MilestoneDto read(Long milestoneId) {
+  MilestoneDto get(Long milestoneId) {
     return restClient
         .get()
         .uri("/milestones/{milestoneId}", milestoneId)
@@ -61,7 +61,7 @@ public class MilestoneApiTest {
         TEST_MILESTONE_ID,
         new MilestoneUpdateDto(
             "new title", "new description", MilestoneStatus.IN_PROGRESS, null, null));
-    MilestoneDto response = read(TEST_MILESTONE_ID);
+    MilestoneDto response = get(TEST_MILESTONE_ID);
     System.out.println("response = " + response);
   }
 
@@ -82,7 +82,7 @@ public class MilestoneApiTest {
   @Test
   void deleteTest() {
     delete(TEST_USER_ID, TEST_MILESTONE_ID);
-    assertThrows(Exception.class, () -> read(TEST_MILESTONE_ID));
+    assertThrows(Exception.class, () -> get(TEST_MILESTONE_ID));
   }
 
   void delete(Long userId, Long milestoneId) {

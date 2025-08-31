@@ -12,10 +12,10 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping("/users")
-  public UserDto read(
+  public UserDto get(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
     Long userId = userService.getByEmail(principal.getUsername()).getId();
-    return userService.read(userId);
+    return userService.get(userId);
   }
 
   @PutMapping("/users/profile")

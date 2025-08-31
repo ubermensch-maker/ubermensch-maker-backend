@@ -34,7 +34,7 @@ public class ConversationService {
     return ConversationDto.from(conversationRepository.save(conversation));
   }
 
-  public ConversationDto read(Long userId, UUID conversationId) {
+  public ConversationDto get(Long userId, UUID conversationId) {
     Conversation conversation =
         conversationRepository
             .findById(conversationId)
@@ -43,7 +43,7 @@ public class ConversationService {
 
     if (!userId.equals(conversation.getUser().getId())) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "You do not have permission to read this conversation");
+          HttpStatus.FORBIDDEN, "You do not have permission to get this conversation");
     }
 
     return ConversationDto.from(conversation);

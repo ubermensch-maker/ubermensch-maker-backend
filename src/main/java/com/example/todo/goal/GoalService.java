@@ -41,7 +41,7 @@ public class GoalService {
     return GoalDto.from(goalRepository.save(goal));
   }
 
-  public GoalDto read(Long goalId) {
+  public GoalDto get(Long goalId) {
     Goal goal =
         goalRepository
             .findById(goalId)

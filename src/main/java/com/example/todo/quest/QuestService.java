@@ -64,7 +64,7 @@ public class QuestService {
     return QuestDto.from(questRepository.save(quest));
   }
 
-  public QuestDto read(Long questId) {
+  public QuestDto get(Long questId) {
     Quest quest =
         questRepository
             .findById(questId)

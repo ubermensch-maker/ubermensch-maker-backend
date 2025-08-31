@@ -24,11 +24,11 @@ public class MessageController {
   }
 
   @GetMapping("/messages/{messageId}")
-  public MessageDto read(
+  public MessageDto get(
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
       @PathVariable UUID messageId) {
     Long userId = userService.getByEmail(principal.getUsername()).getId();
-    return messageService.read(userId, messageId);
+    return messageService.get(userId, messageId);
   }
 
   @GetMapping("/messages")

@@ -39,12 +39,12 @@ public class GoalApiTest {
   }
 
   @Test
-  void readTest() {
-    GoalDto response = read(TEST_GOAL_ID);
+  void getTest() {
+    GoalDto response = get(TEST_GOAL_ID);
     System.out.println("response = " + response);
   }
 
-  GoalDto read(Long goalId) {
+  GoalDto get(Long goalId) {
     return restClient.get().uri("/goals/{goalId}", goalId).retrieve().body(GoalDto.class);
   }
 
@@ -54,7 +54,7 @@ public class GoalApiTest {
         TEST_USER_ID,
         TEST_GOAL_ID,
         new GoalUpdateDto("new title", "new description", GoalStatus.IN_PROGRESS, null, null));
-    GoalDto response = read(TEST_GOAL_ID);
+    GoalDto response = get(TEST_GOAL_ID);
     System.out.println("response = " + response);
   }
 
@@ -72,7 +72,7 @@ public class GoalApiTest {
   @Test
   void deleteTest() {
     delete(TEST_USER_ID, TEST_GOAL_ID);
-    assertThrows(Exception.class, () -> read(TEST_GOAL_ID));
+    assertThrows(Exception.class, () -> get(TEST_GOAL_ID));
   }
 
   void delete(Long userId, Long goalId) {

@@ -5,7 +5,6 @@ import com.example.todo.message.enums.Model;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +20,8 @@ import org.hibernate.annotations.SQLRestriction;
 public class TokenUsage {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(columnDefinition = "UUID DEFAULT gen_random_uuid()")
-  private UUID id;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
@@ -37,11 +35,11 @@ public class TokenUsage {
   @Column(nullable = false)
   private Model model;
 
-  @Column(name = "prompt_tokens", nullable = false)
-  private Integer promptTokens;
+  @Column(name = "input_tokens", nullable = false)
+  private Integer inputTokens;
 
-  @Column(name = "completion_tokens", nullable = false)
-  private Integer completionTokens;
+  @Column(name = "output_tokens", nullable = false)
+  private Integer outputTokens;
 
   @Column(name = "total_tokens", nullable = false)
   private Integer totalTokens;
@@ -62,15 +60,15 @@ public class TokenUsage {
       User user,
       Message message,
       Model model,
-      Integer promptTokens,
-      Integer completionTokens,
+      Integer inputTokens,
+      Integer outputTokens,
       Integer totalTokens,
       String requestType) {
     this.user = user;
     this.message = message;
     this.model = model;
-    this.promptTokens = promptTokens;
-    this.completionTokens = completionTokens;
+    this.inputTokens = inputTokens;
+    this.outputTokens = outputTokens;
     this.totalTokens = totalTokens;
     this.requestType = requestType;
     this.createdAt = Instant.now();
@@ -81,10 +79,11 @@ public class TokenUsage {
       User user,
       Message message,
       Model model,
-      Integer promptTokens,
-      Integer completionTokens,
+      Integer inputTokens,
+      Integer outputTokens,
       Integer totalTokens,
       String requestType) {
-    return new TokenUsage(user, message, model, promptTokens, completionTokens, totalTokens, requestType);
+    return new TokenUsage(
+        user, message, model, inputTokens, outputTokens, totalTokens, requestType);
   }
 }

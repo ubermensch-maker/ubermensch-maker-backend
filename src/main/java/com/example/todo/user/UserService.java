@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserService {
   private final UserRepository userRepository;
 
-  public UserDto read(Long userId) {
+  public UserDto get(Long userId) {
     User user =
         userRepository
             .findById(userId)
