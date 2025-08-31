@@ -25,18 +25,19 @@ public class ToolCallController {
       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal,
       @PathVariable UUID toolCallId,
       @RequestBody ToolCallActionDto request) {
-
+    
     Long userId = userService.getByEmail(principal.getUsername()).getId();
-
+    
     // Execute the tool action (accept/reject)
     ToolCall toolCall = toolCallService.executeAction(userId, toolCallId, request);
-
+    
     // Generate summary message and send to OpenAI for response
     String toolResultMessage = toolCallService.generateToolResultMessage(toolCall);
-    MessageDto responseMessage =
-        messageService.processToolResult(userId, toolCall, toolResultMessage);
-
-    return ResponseEntity.ok(
-        ToolCallActionResponseDto.of(ToolCallDto.from(toolCall), responseMessage));
+    MessageDto responseMessage = messageService.processToolResult(userId, toolCall, toolResultMessage);
+    
+    return ResponseEntity.ok(ToolCallActionResponseDto.of(
+        ToolCallDto.from(toolCall), 
+        responseMessage
+    ));
   }
 }

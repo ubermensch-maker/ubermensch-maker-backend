@@ -22,10 +22,9 @@ public class TokenUsageService {
   private final UserRepository userRepository;
 
   public TokenUsageSummaryDto getUserTokenUsageSummary(Long userId) {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    User user = userRepository
+        .findById(userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     // 전체 토큰 사용량
     Long totalTokens = tokenUsageRepository.getTotalTokensByUser(userId);
@@ -39,10 +38,14 @@ public class TokenUsageService {
 
     // 최근 사용 내역 (최근 20개)
     Pageable pageable = PageRequest.of(0, 20);
-    List<TokenUsage> recentUsageList =
-        tokenUsageRepository.findByUserIdOrderByCreatedAtDesc(userId).stream().limit(20).toList();
-
-    List<TokenUsageDto> recentUsage = recentUsageList.stream().map(TokenUsageDto::from).toList();
+    List<TokenUsage> recentUsageList = tokenUsageRepository.findByUserIdOrderByCreatedAtDesc(userId)
+        .stream()
+        .limit(20)
+        .toList();
+    
+    List<TokenUsageDto> recentUsage = recentUsageList.stream()
+        .map(TokenUsageDto::from)
+        .toList();
 
     return new TokenUsageSummaryDto(totalTokens, totalThisMonth, recentUsage);
   }

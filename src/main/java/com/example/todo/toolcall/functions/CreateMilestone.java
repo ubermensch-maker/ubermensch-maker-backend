@@ -16,11 +16,9 @@ public class CreateMilestone {
   @JsonPropertyDescription("The description of the milestone")
   public String description;
 
-  @JsonPropertyDescription(
-      "The start date of the milestone in ISO 8601 format (e.g., 2024-01-01T00:00:00Z)")
+  @JsonPropertyDescription("The start date of the milestone in ISO 8601 format (e.g., 2024-01-01T00:00:00Z)")
   public Instant startAt;
 
-  @JsonPropertyDescription(
-      "The end date of the milestone in ISO 8601 format (e.g., 2024-12-31T23:59:59Z)")
+  @JsonPropertyDescription("The end date of the milestone in ISO 8601 format (e.g., 2024-12-31T23:59:59Z)")
   public Instant endAt;
 }

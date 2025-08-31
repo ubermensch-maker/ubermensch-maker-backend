@@ -18,10 +18,10 @@ public class ToolContentDto extends ContentDto {
 
   @JsonCreator
   public ToolContentDto(
-      @JsonProperty("name") String name,
-      @JsonProperty("args") Map<String, Object> args,
-      @JsonProperty("toolCallId") UUID toolCallId,
-      @JsonProperty("status") ToolCallStatus status,
+      @JsonProperty("name") String name, 
+      @JsonProperty("args") Map<String, Object> args, 
+      @JsonProperty("toolCallId") UUID toolCallId, 
+      @JsonProperty("status") ToolCallStatus status, 
       @JsonProperty("sourceCallId") String sourceCallId) {
     super(ContentType.TOOL);
     this.name = name;
