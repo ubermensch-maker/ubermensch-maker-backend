@@ -19,7 +19,7 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE quests SET deleted_at = NOW() WHERE id = ?")
 @Getter
-@ToString
+@ToString(exclude = {"user", "goal", "milestone"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Quest {
   @Id

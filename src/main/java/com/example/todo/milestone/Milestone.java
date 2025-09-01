@@ -2,9 +2,11 @@ package com.example.todo.milestone;
 
 import com.example.todo.goal.Goal;
 import com.example.todo.milestone.enums.MilestoneStatus;
+import com.example.todo.quest.Quest;
 import com.example.todo.user.User;
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +19,7 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE milestones SET deleted_at = NOW() WHERE id = ?")
 @Getter
-@ToString
+@ToString(exclude = {"user", "goal", "quests"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Milestone {
   @Id
@@ -55,6 +57,9 @@ public class Milestone {
 
   @Column(name = "deleted_at")
   private Instant deletedAt;
+
+  @OneToMany(mappedBy = "milestone", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<Quest> quests;
 
   public static Milestone create(
       User user, Goal goal, String title, String description, Instant startAt, Instant endAt) {

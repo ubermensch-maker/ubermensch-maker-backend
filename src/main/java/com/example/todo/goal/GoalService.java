@@ -4,8 +4,6 @@ import com.example.todo.goal.dto.GoalCreateDto;
 import com.example.todo.goal.dto.GoalDto;
 import com.example.todo.goal.dto.GoalListDto;
 import com.example.todo.goal.dto.GoalUpdateDto;
-import com.example.todo.milestone.MilestoneRepository;
-import com.example.todo.quest.QuestRepository;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,8 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class GoalService {
   private final GoalRepository goalRepository;
   private final UserRepository userRepository;
-  private final MilestoneRepository milestoneRepository;
-  private final QuestRepository questRepository;
 
   @Transactional
   public GoalDto create(Long userId, GoalCreateDto request) {
@@ -100,8 +96,6 @@ public class GoalService {
           HttpStatus.FORBIDDEN, "You do not have permission to delete this goal");
     }
 
-    questRepository.deleteAllByGoalId(goalId);
-    milestoneRepository.deleteAllByGoalId(goalId);
     goalRepository.delete(goal);
   }
 }

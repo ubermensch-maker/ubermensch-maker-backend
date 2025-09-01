@@ -4,7 +4,6 @@ import com.example.todo.conversation.dto.ConversationCreateDto;
 import com.example.todo.conversation.dto.ConversationDto;
 import com.example.todo.conversation.dto.ConversationListDto;
 import com.example.todo.conversation.dto.ConversationUpdateDto;
-import com.example.todo.message.MessageRepository;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class ConversationService {
   private final ConversationRepository conversationRepository;
   private final UserRepository userRepository;
-  private final MessageRepository messageRepository;
 
   @Transactional
   public ConversationDto create(Long userId, ConversationCreateDto request) {
@@ -99,7 +97,6 @@ public class ConversationService {
           HttpStatus.FORBIDDEN, "You do not have permission to delete this conversation");
     }
 
-    messageRepository.deleteAllByConversationId(conversationId);
     conversationRepository.delete(conversation);
   }
 

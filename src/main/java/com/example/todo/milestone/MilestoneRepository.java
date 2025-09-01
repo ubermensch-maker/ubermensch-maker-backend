@@ -7,6 +7,4 @@ public interface MilestoneRepository extends JpaRepository<Milestone, Long> {
   List<Milestone> findAllByUserId(Long userId);
 
   List<Milestone> findAllByUserIdAndGoalId(Long userId, Long goalId);
-
-  void deleteAllByGoalId(Long goalId);
 }

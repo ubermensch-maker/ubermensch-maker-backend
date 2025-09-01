@@ -5,6 +5,8 @@ import com.example.todo.message.dto.ContentDto;
 import com.example.todo.message.enums.MessageRole;
 import com.example.todo.message.enums.Model;
 import com.example.todo.message.enums.ModelConverter;
+import com.example.todo.toolcall.ToolCall;
+import com.example.todo.usage.TokenUsage;
 import com.example.todo.user.User;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -26,7 +28,7 @@ import org.hibernate.type.SqlTypes;
 @SQLRestriction("deleted_at IS NULL")
 @SQLDelete(sql = "UPDATE chat_messages SET deleted_at = NOW() WHERE id = ?")
 @Getter
-@ToString
+@ToString(exclude = {"user", "conversation", "parentMessage", "toolCalls", "tokenUsages"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message {
   @Id
@@ -70,6 +72,12 @@ public class Message {
 
   @Column(name = "deleted_at")
   private Instant deletedAt;
+
+  @OneToMany(mappedBy = "message", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<ToolCall> toolCalls;
+
+  @OneToMany(mappedBy = "message", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<TokenUsage> tokenUsages;
 
   public static Message create(
       @Nullable User user,

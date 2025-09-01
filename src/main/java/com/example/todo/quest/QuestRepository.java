@@ -9,8 +9,4 @@ public interface QuestRepository extends JpaRepository<Quest, Long> {
   List<Quest> findAllByUserIdAndGoalId(Long userId, Long goalId);
 
   List<Quest> findAllByUserIdAndMilestoneId(Long userId, Long milestoneId);
-
-  void deleteAllByGoalId(Long goalId);
-
-  void deleteAllByMilestoneId(Long milestoneId);
 }
